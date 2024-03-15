@@ -13,7 +13,8 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.get("/login", responses={**login_responses})
 def login_url(request: Request):
-    """Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
+    """
+    Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
     Click on the download url returned to get access_token.
 
     Parameters: None
