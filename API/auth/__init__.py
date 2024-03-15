@@ -43,7 +43,7 @@ def get_osm_auth_user(access_token):
     return user
 
 
-def login_required(access_token: str = Header(...)):
+def login_required(access_token: str = Header(..., description="Access token to authorize user")):
     return get_osm_auth_user(access_token)
 
 
