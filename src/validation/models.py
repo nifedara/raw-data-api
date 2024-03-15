@@ -292,10 +292,13 @@ class ErrorMessage(BaseModel):
     detail: str
 
 common_responses = {
-    403: {"model": ErrorMessage,
-          "content": {"application/json": {"example": {"detail": "OSM Authentication failed"}}}},
-    500: {"model": ErrorMessage,
-          "content": {"application/json": {"example": {"detail": "Internal Server Error"}}}},
+    403: {"model": ErrorMessage, "content": {"application/json": {"example": {"detail": "OSM Authentication failed"}}}},
+    500: {},
+}
+
+login_responses = {
+    200: {"content": {"application/json":  {"example": {"login_url": "https://www.openstreetmap.org/oauth2/authorize/"}}}},
+    500: {},
 }
 
 class StatsRequestParams(BaseModel, GeometryValidatorMixin):
