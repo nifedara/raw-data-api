@@ -288,8 +288,11 @@ class StatusResponse(BaseModel):
         json_schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
 
 
+class ErrorDetail(BaseModel):
+    msg: str
 class ErrorMessage(BaseModel):
-    detail: str
+    detail: List[ErrorDetail]
+
 
 common_responses = {
     403: {"model": ErrorMessage, "content": {"application/json": {"example": {"detail": "OSM Authentication failed"}}}},
