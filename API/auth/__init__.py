@@ -54,7 +54,7 @@ def get_osm_auth_user(access_token):
 
 
 def login_required(access_token: str = 
-                   Header(..., description="Access Token to Authorize User", example="ujkq0jfr4jhv9e3buj0xsvynio8")):
+                   Header(..., description="Access Token to Authorize User", example="UJkq0jfR4JHV9e3Buj0xSVYNio8TWQ")):
     return get_osm_auth_user(access_token)
 
 
