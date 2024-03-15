@@ -45,7 +45,7 @@ def callback(request: Request):
     return access_token  
 
 
-@router.get("/me", response_model=AuthUser, responses={**common_responses})
+@router.get("/me", response_model=AuthUser, responses={**common_responses}, response_description="User Information")
 def my_data(user_data: AuthUser = Depends(login_required)):
     """Read the access token and provide  user details from OSM user's API endpoint,
     also integrated with underpass .
