@@ -297,7 +297,7 @@ common_responses = {
 }
 
 login_responses = {
-    200: {"content": {"application/json":  {"example": {"login_url": "https://www.openstreetmap.org/oauth2/authorize/"}}}},
+    200: {"description": "A Login URL", "content": {"application/json":  {"example": {"login_url": "https://www.openstreetmap.org/oauth2/authorize/"}}}},
     500: {},
 }
 
