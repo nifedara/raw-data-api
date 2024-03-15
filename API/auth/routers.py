@@ -74,7 +74,8 @@ class User(BaseModel):
  
 
 # Create user
-@router.post("/users", response_model=dict, responses={**common_responses})
+@router.post("/users", response_model=dict, 
+             responses={**common_responses, '200':{"content": {"application/json":  {"example": {"osm_id": 123}}}}})
 async def create_user(params: User, user_data: AuthUser = Depends(admin_required)):
     """
     Creates a new user and returns the user's information.
