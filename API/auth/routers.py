@@ -4,15 +4,14 @@ from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 
 from src.app import Users
-from src.validation.models import ErrorMessage, common_responses
+from src.validation.models import ErrorMessage, common_responses, login_responses
 
 from . import AuthUser, admin_required, login_required, osm_auth, staff_required
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.get("/login", responses={500: {"model": ErrorMessage},
-                                  200: {"content": {"application/json": {"example": {"loginUrl": ""}}}}})
+@router.get("/login", responses={**login_responses})
 def login_url(request: Request):
     """Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
     Click on the download url returned to get access_token.
@@ -95,8 +94,7 @@ async def create_user(params: User, user_data: AuthUser = Depends(admin_required
 
 
 # Read user by osm_id
-@router.get("/users/{osm_id}", response_model=dict, 
-            responses={**common_responses, 404:{"model": ErrorMessage}})
+@router.get("/users/{osm_id}", response_model=dict, responses={**common_responses, 404:{"model": ErrorMessage}})
 async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
     """
     Retrieves user information based on the given osm_id.
@@ -122,8 +120,7 @@ async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
 
 
 # Update user by osm_id
-@router.put("/users/{osm_id}", response_model=dict, 
-            responses={**common_responses, 404:{"model": ErrorMessage}})
+@router.put("/users/{osm_id}", response_model=dict, responses={**common_responses, 404:{"model": ErrorMessage}})
 async def update_user(
     osm_id: int, update_data: User, user_data: AuthUser = Depends(admin_required)
 ):
@@ -150,8 +147,7 @@ async def update_user(
 
 
 # Delete user by osm_id
-@router.delete("/users/{osm_id}", response_model=dict, 
-               responses={**common_responses, 404:{"model": ErrorMessage}})
+@router.delete("/users/{osm_id}", response_model=dict, responses={**common_responses, 404:{"model": ErrorMessage}})
 async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)):
     """
     Deletes a user based on the given osm_id.
