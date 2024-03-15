@@ -28,7 +28,7 @@ def login_url(request: Request):
     return login_url
 
 
-@router.get("/callback", responses={500: {"model": ErrorMessage}})
+@router.get("/callback", responses={500: {}})
 def callback(request: Request):
     """Performs token exchange between OpenStreetMap and Raw Data API
 
