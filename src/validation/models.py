@@ -295,7 +295,7 @@ class ErrorMessage(BaseModel):
 
 
 common_responses = {
-    403: {"model": ErrorMessage, "content": {"application/json": {"example": {"detail": "OSM Authentication failed"}}}},
+    403: {"model": ErrorMessage, "content": {"application/json": {"example": {"detail": [{"msg": "OSM Authentication failed"}] }}}},
     500: {},
 }
 
