@@ -68,6 +68,9 @@ def my_data(user_data: AuthUser = Depends(login_required)):
 class User(BaseModel):
     osm_id: int
     role: int
+
+    class Config:
+        json_schema_extra = {"example": {"osm_id": 123, "role": 3}}
  
 
 # Create user
