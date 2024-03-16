@@ -3,7 +3,7 @@ from datetime import datetime
 
 import redis
 from celery.result import AsyncResult
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Path
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
@@ -19,7 +19,7 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 @router.get("/status/{task_id}", response_model=SnapshotTaskResponse, responses={'404':{"model": ErrorMessage}, '500': {}})
 @version(1)
 def get_task_status(
-    task_id,
+    task_id= Path(description="Unique id provided on response from */snapshot/*"),
     only_args: bool = Query(
         default=False,
         description="Fetches arguments of task",
@@ -80,7 +80,8 @@ def get_task_status(
 
 @router.get("/revoke/{task_id}", responses={**common_responses})
 @version(1)
-def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
+def revoke_task(task_id= Path(description="Unique id provided on response from */snapshot/*"), 
+                user: AuthUser = Depends(staff_required)):
     """Revokes task , Terminates if it is executing
 
     Args:
