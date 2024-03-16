@@ -497,14 +497,14 @@ def get_osm_current_snapshot_as_plain_geojson(
     return result
 
 
-@router.get("/countries", responses={'500': {"model": ErrorMessage}})
+@router.get("/countries", responses={'500': {}})
 @version(1)
 def get_countries(q: str = ""):
     result = RawData().get_countries_list(q)
     return result
 
 
-@router.get("/osm_id", responses={'500': {"model": ErrorMessage}})
+@router.get("/osm_id", responses={'500': {}})
 @version(1)
 def get_osm_feature(osm_id: int):
     return RawData().get_osm_feature(osm_id)
