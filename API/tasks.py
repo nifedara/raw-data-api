@@ -160,7 +160,7 @@ def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
 queues = [DEFAULT_QUEUE_NAME, DAEMON_QUEUE_NAME]
 
 
-@router.get("/queue", responses={'500': {"model": ErrorMessage}})
+@router.get("/queue", responses={'500': {}})
 @version(1)
 def get_queue_info():
     queue_info = {}
