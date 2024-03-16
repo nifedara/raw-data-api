@@ -94,7 +94,7 @@ def revoke_task(task_id= Path(description="Unique id provided on response from *
     return JSONResponse({"id": task_id})
 
 
-@router.get("/inspect", responses={'500': {"model": ErrorMessage}})
+@router.get("/inspect", responses={'500': {}})
 @version(1)
 def inspect_workers(
     request: Request,
