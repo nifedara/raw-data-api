@@ -58,7 +58,7 @@ def login_required(access_token: str =
     return get_osm_auth_user(access_token)
 
 
-def get_optional_user(access_token: str = Header(default=None)) -> AuthUser:
+def get_optional_user(access_token: str = Header(default=None, description="Access Token to Authorize User")) -> AuthUser:
     if access_token:
         return get_osm_auth_user(access_token)
     else:
