@@ -504,7 +504,7 @@ def get_countries(q: str = ""):
     return result
 
 
-@router.get("/osm_id", responses={'500': {}})
+@router.get("/osm_id", responses={'404':{"model": ErrorMessage}, '500': {}})
 @version(1)
 def get_osm_feature(osm_id: int=Path(description="The OSM ID of the User")):
     return RawData().get_osm_feature(osm_id)
