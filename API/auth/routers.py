@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Query, Path
 from pydantic import BaseModel
 
 from src.app import Users
@@ -100,7 +100,8 @@ async def create_user(params: User, user_data: AuthUser = Depends(admin_required
 
 # Read user by osm_id
 @router.get("/users/{osm_id}", response_model=dict, responses={**common_responses, 404:{"model": ErrorMessage}})
-async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
+async def read_user(osm_id: int=Path(description="The OSM ID of the User to Retrieve"), 
+                    user_data: AuthUser = Depends(staff_required)):
     """
     Retrieves user information based on the given osm_id.
     User Role :
@@ -127,7 +128,8 @@ async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
 # Update user by osm_id
 @router.put("/users/{osm_id}", response_model=dict, responses={**common_responses, 404:{"model": ErrorMessage}})
 async def update_user(
-    osm_id: int, update_data: User, user_data: AuthUser = Depends(admin_required)
+   update_data: User, user_data: AuthUser = Depends(admin_required),
+   osm_id: int=Path(description="The OSM ID of the User to Retrieve")
 ):
     """
     Updates user information based on the given osm_id.
@@ -175,7 +177,9 @@ async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)
 # Get all users
 @router.get("/users", response_model=list, responses={**common_responses})
 async def read_users(
-    skip: int = 0, limit: int = 10, user_data: AuthUser = Depends(staff_required)
+    skip: int = Query(0, description="The Number of Users to Skip"), 
+    limit: int = Query(10, description="The Maximum Number of Users to Retrieve"), 
+    user_data: AuthUser = Depends(staff_required)
 ):
     """
     Retrieves a list of users with optional pagination.
