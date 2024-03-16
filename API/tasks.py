@@ -16,8 +16,7 @@ from .auth import AuthUser, admin_required, login_required, staff_required
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
-@router.get("/status/{task_id}", response_model=SnapshotTaskResponse,
-            responses={'500': {"model": ErrorMessage}})
+@router.get("/status/{task_id}", response_model=SnapshotTaskResponse, responses={'500': {}})
 @version(1)
 def get_task_status(
     task_id,
