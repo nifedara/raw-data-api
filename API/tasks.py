@@ -135,7 +135,7 @@ def inspect_workers(
     return JSONResponse(content=response_data)
 
 
-@router.get("/ping", responses={'500': {"model": ErrorMessage}})
+@router.get("/ping", responses={'500': {}})
 @version(1)
 def ping_workers():
     """Pings available workers
