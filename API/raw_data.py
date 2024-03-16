@@ -23,7 +23,7 @@ import json
 
 import redis
 from area import area
-from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, Path
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
@@ -506,5 +506,5 @@ def get_countries(q: str = ""):
 
 @router.get("/osm_id", responses={'500': {}})
 @version(1)
-def get_osm_feature(osm_id: int):
+def get_osm_feature(osm_id: int=Path(description="The OSM ID of the User")):
     return RawData().get_osm_feature(osm_id)
