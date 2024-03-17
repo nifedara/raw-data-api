@@ -195,7 +195,7 @@ def get_queue_info():
             responses={**common_responses, '404': {"model": ErrorMessage}})
 @version(1)
 def get_list_details(
-    queue_name: str,
+    queue_name= Path(description="Name of queue to retrieve"),
     args: bool = Query(
         default=False,
         description="Includes arguments of task",
