@@ -78,7 +78,9 @@ def get_task_status(
     return JSONResponse(result)
 
 
-@router.get("/revoke/{task_id}", responses={**common_responses, '404':{"model": ErrorMessage}})
+@router.get("/revoke/{task_id}", responses={**common_responses, 
+                                            '404':{"model": ErrorMessage},
+                                            '200':{"content": {"application/json": {"example": {"id": "aa539af6-83d4-4aa3-879e-abf14fffa03f"}}}}})
 @version(1)
 def revoke_task(task_id= Path(description="Unique id provided on response from */snapshot/*"), 
                 user: AuthUser = Depends(staff_required)):
