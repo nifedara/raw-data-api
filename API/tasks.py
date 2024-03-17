@@ -94,7 +94,8 @@ def revoke_task(task_id= Path(description="Unique id provided on response from *
     return JSONResponse({"id": task_id})
 
 
-@router.get("/inspect", responses={'500': {}})
+@router.get("/inspect", responses={'500': {},
+                                   '200':{"content": {"application/json":  {"example": {"active": [{"celery@default_worker": {}}]}}}}})
 @version(1)
 def inspect_workers(
     request: Request,
@@ -135,7 +136,8 @@ def inspect_workers(
     return JSONResponse(content=response_data)
 
 
-@router.get("/ping", responses={'500': {}})
+@router.get("/ping", responses={'500': {},
+                                '200':{"content": {"application/json":  {"example": {"celery@default_worker": {"ok": "pong"}}}}}})
 @version(1)
 def ping_workers():
     """Pings available workers
@@ -146,7 +148,8 @@ def ping_workers():
     return JSONResponse(inspected_ping)
 
 
-@router.get("/purge", responses={**common_responses})
+@router.get("/purge", responses={**common_responses,
+                                 '200':{"content": {"application/json":  {"example": {"tasks_discarded": 0}}}}})
 @version(1)
 def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     """
@@ -160,7 +163,8 @@ def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
 queues = [DEFAULT_QUEUE_NAME, DAEMON_QUEUE_NAME]
 
 
-@router.get("/queue", responses={'500': {}})
+@router.get("/queue", responses={'500': {},
+                                 '200':{"content": {"application/json":  {"example": {"raw_daemon": {"length": 0}}}}}})
 @version(1)
 def get_queue_info():
     queue_info = {}
@@ -188,7 +192,7 @@ def get_list_details(
     ),
 ):
     if queue_name not in queues:
-        raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
+        raise HTTPException(status_code=404, detail=[{"msg": f"Queue '{queue_name}' not found"}])
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
     list_items = redis_client.lrange(queue_name, 0, -1)
