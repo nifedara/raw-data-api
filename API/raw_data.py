@@ -62,7 +62,8 @@ def check_database_last_updated():
     return {"last_updated": result}
 
 
-@router.post("/snapshot", response_model=SnapshotResponse, responses={**common_responses, 404:{"model": ErrorMessage}})
+@router.post("/snapshot", response_model=SnapshotResponse, responses={**common_responses, 404:{"model": ErrorMessage},
+                                                                      429:{"model": ErrorMessage}})
 @limiter.limit(f"{export_rate_limit}/minute")
 @version(1)
 def get_osm_current_snapshot_as_file(
