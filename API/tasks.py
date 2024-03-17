@@ -154,7 +154,11 @@ def ping_workers():
 def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     """
     Discards all waiting tasks from the queue
+
     Returns : Number of tasks discarded
+
+    Raises:
+    - HTTPException 403: If purge fails due to insufficient permission.
     """
     purged = celery.control.purge()
     return JSONResponse({"tasks_discarded": purged})
@@ -167,6 +171,12 @@ queues = [DEFAULT_QUEUE_NAME, DAEMON_QUEUE_NAME]
                                  '200':{"content": {"application/json":  {"example": {"raw_daemon": {"length": 0}}}}}})
 @version(1)
 def get_queue_info():
+    """
+    Get all the queues
+
+    Returns : The queues names and their lengths
+    """
+
     queue_info = {}
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
@@ -191,6 +201,15 @@ def get_list_details(
         description="Includes arguments of task",
     ),
 ):
+    """
+    Retrieves queue information based on the given queue name
+
+    Args:
+    - queue_name (str): The name of the queue to retrieve.
+    
+    Returns : The queue details
+    """
+
     if queue_name not in queues:
         raise HTTPException(status_code=404, detail=[{"msg": f"Queue '{queue_name}' not found"}])
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
