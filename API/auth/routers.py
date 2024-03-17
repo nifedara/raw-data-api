@@ -99,7 +99,9 @@ async def create_user(params: User, user_data: AuthUser = Depends(admin_required
 
 
 # Read user by osm_id
-@router.get("/users/{osm_id}", response_model=dict, responses={**common_responses, 404:{"model": ErrorMessage}})
+@router.get("/users/{osm_id}", responses={**common_responses,
+                                          '200':{"content": {"application/json": {"example": {"osm_id": 1, "role": 2}}}}, 
+                                          '404':{"model": ErrorMessage}},)
 async def read_user(osm_id: int=Path(description="The OSM ID of the User to Retrieve"), 
                     user_data: AuthUser = Depends(staff_required)):
     """
@@ -126,7 +128,9 @@ async def read_user(osm_id: int=Path(description="The OSM ID of the User to Retr
 
 
 # Update user by osm_id
-@router.put("/users/{osm_id}", response_model=dict, responses={**common_responses, 404:{"model": ErrorMessage}})
+@router.put("/users/{osm_id}", responses={**common_responses, 
+                                          '200':{"content": {"application/json": {"example": {"osm_id": 1, "role": 1}}}},
+                                          '404':{"model": ErrorMessage}})
 async def update_user(
    update_data: User, user_data: AuthUser = Depends(admin_required),
    osm_id: int=Path(description="The OSM ID of the User to Retrieve")
@@ -154,7 +158,9 @@ async def update_user(
 
 
 # Delete user by osm_id
-@router.delete("/users/{osm_id}", response_model=dict, responses={**common_responses, 404:{"model": ErrorMessage}})
+@router.delete("/users/{osm_id}", responses={**common_responses,
+                                             '200':{"content": {"application/json": {"example": {"osm_id": 1, "role": 1}}}},
+                                             '404':{"model": ErrorMessage}})
 async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)):
     """
     Deletes a user based on the given osm_id.
@@ -175,7 +181,8 @@ async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)
 
 
 # Get all users
-@router.get("/users", response_model=list, responses={**common_responses})
+@router.get("/users", response_model=list, responses={**common_responses,
+                                                      '200':{"content": {"application/json": {"example": [{"osm_id": 1, "role": 2}]}}},})
 async def read_users(
     skip: int = Query(0, description="The Number of Users to Skip"), 
     limit: int = Query(10, description="The Maximum Number of Users to Retrieve"), 
