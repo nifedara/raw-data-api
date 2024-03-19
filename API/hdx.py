@@ -15,7 +15,7 @@ from .auth import AuthUser, admin_required, staff_required
 router = APIRouter(prefix="/hdx", tags=["HDX"])
 
 
-@router.post("/", response_model=dict)
+@router.post("", response_model=dict)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def create_hdx(
@@ -36,7 +36,7 @@ async def create_hdx(
     return hdx_instance.create_hdx(hdx_data)
 
 
-@router.get("/", response_model=List[dict])
+@router.get("", response_model=List[dict])
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def read_hdx_list(
@@ -70,7 +70,7 @@ async def read_hdx_list(
     return hdx_list
 
 
-@router.get("/search/", response_model=List[dict])
+@router.get("/search", response_model=List[dict])
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def search_hdx(
