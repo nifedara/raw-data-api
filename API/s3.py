@@ -37,7 +37,7 @@ paginator = s3.get_paginator("list_objects_v2")
 @version(1)
 async def list_s3_files(
     request: Request,
-    folder: str = Query(default="/HDX"),
+    folder: str = Query("/HDX", description="Folder in S3"),
     prettify: bool = Query(
         default=False, description="Display size & date in human-readable format"
     ),

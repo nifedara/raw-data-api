@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Path
 from fastapi_versioning import version
 
 from src.app import HDX
@@ -41,8 +41,8 @@ async def create_hdx(
 @version(1)
 async def read_hdx_list(
     request: Request,
-    skip: int = 0,
-    limit: int = 10,
+    skip: int = Query(0, description="Number of entries to skip."),
+    limit: int = Query(10, description="Maximum number of entries to retrieve.")
 ):
     """
     Retrieve a list of HDX entries based on provided filters.
@@ -101,7 +101,7 @@ async def search_hdx(
 @router.get("/{hdx_id}", response_model=dict)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
-async def read_hdx(request: Request, hdx_id: int):
+async def read_hdx(request: Request, hdx_id: int=Path(description="ID of the HDX entry to retrieve")):
     """
     Retrieve a specific HDX entry by its ID.
 
@@ -127,8 +127,8 @@ async def read_hdx(request: Request, hdx_id: int):
 @version(1)
 async def update_hdx(
     request: Request,
-    hdx_id: int,
     hdx_data: dict,
+    hdx_id: int=Path(description="ID of the HDX entry to update"),
     user_data: AuthUser = Depends(staff_required),
 ):
     """
@@ -159,8 +159,8 @@ async def update_hdx(
 @version(1)
 async def patch_hdx(
     request: Request,
-    hdx_id: int,
     hdx_data: Dict,
+    hdx_id: int=Path(description="ID of the HDX entry to update"),
     user_data: AuthUser = Depends(staff_required),
 ):
     """
@@ -190,7 +190,8 @@ async def patch_hdx(
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def delete_hdx(
-    request: Request, hdx_id: int, user_data: AuthUser = Depends(admin_required)
+    request: Request, hdx_id: int=Path(description="ID of the HDX entry to delete"), 
+    user_data: AuthUser = Depends(admin_required)
 ):
     """
     Delete an existing HDX entry.
