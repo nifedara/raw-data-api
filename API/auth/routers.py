@@ -161,7 +161,8 @@ async def update_user(
 @router.delete("/users/{osm_id}", responses={**common_responses,
                                              '200':{"content": {"application/json": {"example": {"osm_id": 1, "role": 1}}}},
                                              '404':{"model": ErrorMessage}})
-async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)):
+async def delete_user(user_data: AuthUser = Depends(admin_required),
+                      osm_id: int=Path(description="The OSM ID of the User to Retrieve")):
     """
     Deletes a user based on the given osm_id.
 
