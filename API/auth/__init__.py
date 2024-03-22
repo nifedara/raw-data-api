@@ -10,7 +10,10 @@ from src.app import Users
 from src.config import get_oauth_credentials
 
 
-Raw_Data_Access_Token = APIKeyHeader(name='Access_Token', description="Access Token to Authorize User")
+Raw_Data_Access_Token = APIKeyHeader(
+    name="Access_Token", description="Access Token to Authorize User"
+)
+
 
 class UserRole(Enum):
     ADMIN = 1
@@ -27,11 +30,11 @@ class AuthUser(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                    "id": "123",
-                    "username": "HOT Team",
-                    "img_url": "https://hotteamimage.com",
-                    "role": UserRole.GUEST.value,
-                }
+                "id": "123",
+                "username": "HOT Team",
+                "img_url": "https://hotteamimage.com",
+                "role": UserRole.GUEST.value,
+            }
         }
 
 
@@ -60,7 +63,11 @@ def login_required(access_token: str = Depends(Raw_Data_Access_Token)):
     return get_osm_auth_user(access_token)
 
 
-def get_optional_user(access_token: str = Header(default=None, description="Access Token to Authorize User")) -> AuthUser:
+def get_optional_user(
+    access_token: str = Header(
+        default=None, description="Access Token to Authorize User"
+    )
+) -> AuthUser:
     if access_token:
         return get_osm_auth_user(access_token)
     else:
