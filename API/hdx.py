@@ -25,8 +25,8 @@ async def create_hdx(
     Create a new HDX entry.
 
     Args:
-        request (Request): The request object.
-        hdx_data (dict): Data for creating the HDX entry.
+        request (Request): The request object.\n
+        hdx_data (dict): Data for creating the HDX entry.\n
         user_data (AuthUser): User authentication data.
 
     Returns:
@@ -42,7 +42,7 @@ async def create_hdx(
 async def read_hdx_list(
     request: Request,
     skip: int = Query(0, description="Number of entries to skip."),
-    limit: int = Query(10, description="Maximum number of entries to retrieve.")
+    limit: int = Query(10, description="Maximum number of entries to retrieve."),
 ):
     """
     Retrieve a list of HDX entries based on provided filters.
@@ -101,7 +101,9 @@ async def search_hdx(
 @router.get("/{hdx_id}", response_model=dict)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
-async def read_hdx(request: Request, hdx_id: int=Path(description="ID of the HDX entry to retrieve")):
+async def read_hdx(
+    request: Request, hdx_id: int = Path(description="ID of the HDX entry to retrieve")
+):
     """
     Retrieve a specific HDX entry by its ID.
 
@@ -128,7 +130,7 @@ async def read_hdx(request: Request, hdx_id: int=Path(description="ID of the HDX
 async def update_hdx(
     request: Request,
     hdx_data: dict,
-    hdx_id: int=Path(description="ID of the HDX entry to update"),
+    hdx_id: int = Path(description="ID of the HDX entry to update"),
     user_data: AuthUser = Depends(staff_required),
 ):
     """
@@ -160,7 +162,7 @@ async def update_hdx(
 async def patch_hdx(
     request: Request,
     hdx_data: Dict,
-    hdx_id: int=Path(description="ID of the HDX entry to update"),
+    hdx_id: int = Path(description="ID of the HDX entry to update"),
     user_data: AuthUser = Depends(staff_required),
 ):
     """
@@ -190,8 +192,9 @@ async def patch_hdx(
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def delete_hdx(
-    request: Request, hdx_id: int=Path(description="ID of the HDX entry to delete"), 
-    user_data: AuthUser = Depends(admin_required)
+    request: Request,
+    hdx_id: int = Path(description="ID of the HDX entry to delete"),
+    user_data: AuthUser = Depends(admin_required),
 ):
     """
     Delete an existing HDX entry.

@@ -42,10 +42,15 @@ def callback(request: Request):
     """
 
     access_token = osm_auth.callback(str(request.url))
-    return access_token  
+    return access_token
 
 
-@router.get("/me", response_model=AuthUser, responses={**common_responses}, response_description="User Information")
+@router.get(
+    "/me",
+    response_model=AuthUser,
+    responses={**common_responses},
+    response_description="User Information",
+)
 def my_data(user_data: AuthUser = Depends(login_required)):
     """Read the access token and provide  user details from OSM user's API endpoint,
     also integrated with underpass .
@@ -57,7 +62,7 @@ def my_data(user_data: AuthUser = Depends(login_required)):
                 ADMIN = 1
                 STAFF = 2
                 GUEST = 3
-    
+
     Raises:
     - HTTPException 403: Due to authentication error(Wrong access token).
     - HTTPException 500: Internal server error.
@@ -71,11 +76,17 @@ class User(BaseModel):
 
     class Config:
         json_schema_extra = {"example": {"osm_id": 123, "role": 3}}
- 
+
 
 # Create user
-@router.post("/users", response_model=dict, 
-             responses={**common_responses, '200':{"content": {"application/json":  {"example": {"osm_id": 123}}}}})
+@router.post(
+    "/users",
+    response_model=dict,
+    responses={
+        **common_responses,
+        "200": {"content": {"application/json": {"example": {"osm_id": 123}}}},
+    },
+)
 async def create_user(params: User, user_data: AuthUser = Depends(admin_required)):
     """
     Creates a new user and returns the user's information.
@@ -99,11 +110,18 @@ async def create_user(params: User, user_data: AuthUser = Depends(admin_required
 
 
 # Read user by osm_id
-@router.get("/users/{osm_id}", responses={**common_responses,
-                                          '200':{"content": {"application/json": {"example": {"osm_id": 1, "role": 2}}}}, 
-                                          '404':{"model": ErrorMessage}},)
-async def read_user(osm_id: int=Path(description="The OSM ID of the User to Retrieve"), 
-                    user_data: AuthUser = Depends(staff_required)):
+@router.get(
+    "/users/{osm_id}",
+    responses={
+        **common_responses,
+        "200": {"content": {"application/json": {"example": {"osm_id": 1, "role": 2}}}},
+        "404": {"model": ErrorMessage},
+    },
+)
+async def read_user(
+    osm_id: int = Path(description="The OSM ID of the User to Retrieve"),
+    user_data: AuthUser = Depends(staff_required),
+):
     """
     Retrieves user information based on the given osm_id.
     User Role :
@@ -128,12 +146,18 @@ async def read_user(osm_id: int=Path(description="The OSM ID of the User to Retr
 
 
 # Update user by osm_id
-@router.put("/users/{osm_id}", responses={**common_responses, 
-                                          '200':{"content": {"application/json": {"example": {"osm_id": 1, "role": 1}}}},
-                                          '404':{"model": ErrorMessage}})
+@router.put(
+    "/users/{osm_id}",
+    responses={
+        **common_responses,
+        "200": {"content": {"application/json": {"example": {"osm_id": 1, "role": 1}}}},
+        "404": {"model": ErrorMessage},
+    },
+)
 async def update_user(
-   update_data: User, user_data: AuthUser = Depends(admin_required),
-   osm_id: int=Path(description="The OSM ID of the User to Update")
+    update_data: User,
+    user_data: AuthUser = Depends(admin_required),
+    osm_id: int = Path(description="The OSM ID of the User to Update"),
 ):
     """
     Updates user information based on the given osm_id.
@@ -158,11 +182,18 @@ async def update_user(
 
 
 # Delete user by osm_id
-@router.delete("/users/{osm_id}", responses={**common_responses,
-                                             '200':{"content": {"application/json": {"example": {"osm_id": 1, "role": 1}}}},
-                                             '404':{"model": ErrorMessage}})
-async def delete_user(user_data: AuthUser = Depends(admin_required),
-                      osm_id: int=Path(description="The OSM ID of the User to Delete")):
+@router.delete(
+    "/users/{osm_id}",
+    responses={
+        **common_responses,
+        "200": {"content": {"application/json": {"example": {"osm_id": 1, "role": 1}}}},
+        "404": {"model": ErrorMessage},
+    },
+)
+async def delete_user(
+    user_data: AuthUser = Depends(admin_required),
+    osm_id: int = Path(description="The OSM ID of the User to Delete"),
+):
     """
     Deletes a user based on the given osm_id.
 
@@ -182,12 +213,20 @@ async def delete_user(user_data: AuthUser = Depends(admin_required),
 
 
 # Get all users
-@router.get("/users", response_model=list, responses={**common_responses,
-                                                      '200':{"content": {"application/json": {"example": [{"osm_id": 1, "role": 2}]}}},})
+@router.get(
+    "/users",
+    response_model=list,
+    responses={
+        **common_responses,
+        "200": {
+            "content": {"application/json": {"example": [{"osm_id": 1, "role": 2}]}}
+        },
+    },
+)
 async def read_users(
-    skip: int = Query(0, description="The Number of Users to Skip"), 
-    limit: int = Query(10, description="The Maximum Number of Users to Retrieve"), 
-    user_data: AuthUser = Depends(staff_required)
+    skip: int = Query(0, description="The Number of Users to Skip"),
+    limit: int = Query(10, description="The Maximum Number of Users to Retrieve"),
+    user_data: AuthUser = Depends(staff_required),
 ):
     """
     Retrieves a list of users with optional pagination.
