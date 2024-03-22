@@ -82,9 +82,9 @@ def get_task_status(
                                             '404':{"model": ErrorMessage},
                                             '200':{"content": {"application/json": {"example": {"id": "aa539af6-83d4-4aa3-879e-abf14fffa03f"}}}}})
 @version(1)
-def revoke_task(task_id= Path(description="Unique id provided on response from */snapshot/*"), 
+def revoke_task(task_id= Path(description="Unique id provided on response from */snapshot*"), 
                 user: AuthUser = Depends(staff_required)):
-    """Revokes task , Terminates if it is executing
+    """Revokes task, Terminates if it is executing
 
     Args:
         task_id (_type_): task id of raw data task

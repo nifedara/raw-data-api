@@ -133,7 +133,7 @@ async def read_user(osm_id: int=Path(description="The OSM ID of the User to Retr
                                           '404':{"model": ErrorMessage}})
 async def update_user(
    update_data: User, user_data: AuthUser = Depends(admin_required),
-   osm_id: int=Path(description="The OSM ID of the User to Retrieve")
+   osm_id: int=Path(description="The OSM ID of the User to Update")
 ):
     """
     Updates user information based on the given osm_id.
@@ -162,7 +162,7 @@ async def update_user(
                                              '200':{"content": {"application/json": {"example": {"osm_id": 1, "role": 1}}}},
                                              '404':{"model": ErrorMessage}})
 async def delete_user(user_data: AuthUser = Depends(admin_required),
-                      osm_id: int=Path(description="The OSM ID of the User to Retrieve")):
+                      osm_id: int=Path(description="The OSM ID of the User to Delete")):
     """
     Deletes a user based on the given osm_id.
 

@@ -23,7 +23,7 @@ import json
 
 import redis
 from area import area
-from fastapi import APIRouter, Body, Depends, HTTPException, Request, Path
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, Path, Query
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
@@ -500,12 +500,30 @@ def get_osm_current_snapshot_as_plain_geojson(
 
 @router.get("/countries", responses={'500': {}})
 @version(1)
-def get_countries(q: str = ""):
+def get_countries(q: str = Query("", description="Query parameter for filtering countries")):
+    """
+    Gets Countries list from the database
+
+    Args:
+        q (str): query parameter for filtering countries
+
+    Returns:
+        featurecollection: geojson of country
+    """
     result = RawData().get_countries_list(q)
     return result
 
 
 @router.get("/osm_id", responses={'404':{"model": ErrorMessage}, '500': {}})
 @version(1)
-def get_osm_feature(osm_id: int=Path(description="The OSM ID of the User")):
+def get_osm_feature(osm_id: int=Path(description="The OSM ID of feature")):
+    """
+    Gets geometry of osm_id in geojson
+
+    Args:
+        osm_id (int): osm_id of feature
+
+    Returns:
+        featurecollection: Geojson
+    """
     return RawData().get_osm_feature(osm_id)
