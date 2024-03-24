@@ -942,7 +942,8 @@ class PolygonStats:
         self.API_URL = POLYGON_STATISTICS_API_URL
         if geojson is None and iso3 is None:
             raise HTTPException(
-                status_code=404, detail="Either geojson or iso3 should be passed"
+                status_code=404,
+                detail=[{"msg": "Either geojson or iso3 should be passed"}],
             )
 
         if iso3:
@@ -952,7 +953,9 @@ class PolygonStats:
             cur.execute(get_country_geom_from_iso(iso3))
             result = cur.fetchone()
             if result is None:
-                raise HTTPException(status_code=404, detail="Invalid iso3 code")
+                raise HTTPException(
+                    status_code=404, detail=[{"msg": "Invalid iso3 code"}]
+                )
             self.INPUT_GEOM = result[0]
         else:
             self.INPUT_GEOM = dumps(geojson)
@@ -1936,7 +1939,7 @@ class HDX:
         result = self.cur.fetchone()
         if result:
             return {"create": True}
-        raise HTTPException(status_code=500, detail="Insert failed")
+        raise HTTPException(status_code=500, detail=[{"msg": "Insert failed"}])
 
     def get_hdx_list_with_filters(
         self, skip: int = 0, limit: int = 10, filters: dict = {}
@@ -2025,7 +2028,7 @@ class HDX:
         self.d_b.close_conn()
         if result:
             return orjson.loads(result[0])
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail=[{"msg": "Item not found"}])
 
     def update_hdx(self, hdx_id: int, hdx_data):
         """
@@ -2067,7 +2070,7 @@ class HDX:
         self.d_b.close_conn()
         if result:
             return {"update": True}
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail=[{"msg": "Item not found"}])
 
     def patch_hdx(self, hdx_id: int, hdx_data: dict):
         """
@@ -2107,7 +2110,7 @@ class HDX:
 
         if result:
             return {"update": True}
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail=[{"msg": "Item not found"}])
 
     def delete_hdx(self, hdx_id: int):
         """
@@ -2135,4 +2138,4 @@ class HDX:
         self.d_b.close_conn()
         if result:
             return dict(result[0])
-        raise HTTPException(status_code=404, detail="HDX item not found")
+        raise HTTPException(status_code=404, detail=[{"msg": "HDX item not found"}])

@@ -244,8 +244,8 @@ class SnapshotResponse(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "task_id": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
-                "track_link": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/",
+                "taskId": "aa539af6-83d4-4aa3-879e-abf14fffa03f",
+                "trackLink": "/tasks/status/aa539af6-83d4-4aa3-879e-abf14fffa03f/",
             }
         }
 
@@ -288,6 +288,67 @@ class StatusResponse(BaseModel):
         json_schema_extra = {"example": {"lastUpdated": "2022-06-27 19:59:24+05:45"}}
 
 
+class ErrorDetail(BaseModel):
+    msg: str
+
+
+class ErrorMessage(BaseModel):
+    detail: List[ErrorDetail]
+
+
+common_responses = {
+    401: {
+        "model": ErrorMessage,
+        "content": {
+            "application/json": {
+                "example": {"detail": [{"msg": "OSM Authentication failed"}]}
+            }
+        },
+    },
+    403: {
+        "model": ErrorMessage,
+        "content": {
+            "application/json": {
+                "example": {"detail": [{"msg": "OSM Authentication failed"}]}
+            }
+        },
+    },
+    500: {"model": ErrorMessage},
+}
+
+stats_response = {
+    "200": {
+        "content": {
+            "application/json": {
+                "example": {
+                    "summary": {"buildings": "", "roads": ""},
+                    "raw": {
+                        "population": 0,
+                        "populatedAreaKm2": 0,
+                        "averageEditTime": 0,
+                        "lastEditTime": 0,
+                        "osmUsersCount": 0,
+                        "osmBuildingCompletenessPercentage": 0,
+                        "osmRoadsCompletenessPercentage": 0,
+                        "osmBuildingsCount": 0,
+                        "osmHighwayLengthKm": 0,
+                        "aiBuildingsCountEstimation": 0,
+                        "aiRoadCountEstimationKm": 0,
+                        "buildingCount6Months": 0,
+                        "highwayLength6MonthsKm": 0,
+                    },
+                    "meta": {
+                        "indicators": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md",
+                        "metrics": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md",
+                    },
+                }
+            }
+        }
+    },
+    "500": {"model": ErrorMessage},
+}
+
+
 class StatsRequestParams(BaseModel, GeometryValidatorMixin):
     iso3: Optional[str] = Field(
         default=None,
@@ -296,22 +357,22 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
         max_length=3,
         example="NPL",
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
+        Field(
+            default=None,
+            example={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            },
+        )
     )
 
     @validator("geometry", pre=True, always=True)
@@ -608,22 +669,22 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
             }
         ],
     )
-    geometry: Optional[
-        Union[Polygon, MultiPolygon, Feature, FeatureCollection]
-    ] = Field(
-        default=None,
-        example={
-            "type": "Polygon",
-            "coordinates": [
-                [
-                    [83.96919250488281, 28.194446860487773],
-                    [83.99751663208006, 28.194446860487773],
-                    [83.99751663208006, 28.214869548073377],
-                    [83.96919250488281, 28.214869548073377],
-                    [83.96919250488281, 28.194446860487773],
-                ]
-            ],
-        },
+    geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
+        Field(
+            default=None,
+            example={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            },
+        )
     )
 
     @validator("geometry", pre=True, always=True)
