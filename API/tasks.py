@@ -19,7 +19,7 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 @router.get(
     "/status/{task_id}",
     response_model=SnapshotTaskResponse,
-    responses={"404": {"model": ErrorMessage}, "500": {}},
+    responses={"404": {"model": ErrorMessage}, "500": {"model": ErrorMessage}},
 )
 @version(1)
 def get_task_status(
@@ -116,7 +116,7 @@ def revoke_task(
 @router.get(
     "/inspect",
     responses={
-        "500": {},
+        "500": {"model": ErrorMessage},
         "200": {
             "content": {
                 "application/json": {
@@ -169,7 +169,7 @@ def inspect_workers(
 @router.get(
     "/ping",
     responses={
-        "500": {},
+        "500": {"model": ErrorMessage},
         "200": {
             "content": {
                 "application/json": {
@@ -216,7 +216,7 @@ queues = [DEFAULT_QUEUE_NAME, DAEMON_QUEUE_NAME]
 @router.get(
     "/queue",
     responses={
-        "500": {},
+        "500": {"model": ErrorMessage},
         "200": {
             "content": {"application/json": {"example": {"raw_daemon": {"length": 0}}}}
         },

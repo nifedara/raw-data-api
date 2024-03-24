@@ -4,14 +4,29 @@ from fastapi import APIRouter, Depends, Request, Query, Path
 from pydantic import BaseModel
 
 from src.app import Users
-from src.validation.models import ErrorMessage, common_responses, login_responses
+from src.validation.models import ErrorMessage, common_responses
 
 from . import AuthUser, admin_required, login_required, osm_auth, staff_required
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.get("/login", responses={**login_responses})
+@router.get(
+    "/login",
+    responses={
+        200: {
+            "description": "A Login URL",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "login_url": "https://www.openstreetmap.org/oauth2/authorize/"
+                    }
+                }
+            },
+        },
+        500: {"model": ErrorMessage},
+    },
+)
 def login_url(request: Request):
     """
     Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
@@ -28,7 +43,7 @@ def login_url(request: Request):
     return login_url
 
 
-@router.get("/callback", responses={500: {}})
+@router.get("/callback", responses={500: {"model": ErrorMessage}})
 def callback(request: Request):
     """Performs token exchange between OpenStreetMap and Raw Data API
 
@@ -75,7 +90,7 @@ class User(BaseModel):
     role: int
 
     class Config:
-        json_schema_extra = {"example": {"osm_id": 123, "role": 3}}
+        json_schema_extra = {"example": {"osm_id": 123, "role": 1}}
 
 
 # Create user
