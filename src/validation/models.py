@@ -316,18 +316,36 @@ common_responses = {
     500: {"model": ErrorMessage},
 }
 
-login_responses = {
-    200: {
-        "description": "A Login URL",
+stats_response = {
+    "200": {
         "content": {
             "application/json": {
                 "example": {
-                    "login_url": "https://www.openstreetmap.org/oauth2/authorize/"
+                    "summary": {"buildings": "", "roads": ""},
+                    "raw": {
+                        "population": 0,
+                        "populatedAreaKm2": 0,
+                        "averageEditTime": 0,
+                        "lastEditTime": 0,
+                        "osmUsersCount": 0,
+                        "osmBuildingCompletenessPercentage": 0,
+                        "osmRoadsCompletenessPercentage": 0,
+                        "osmBuildingsCount": 0,
+                        "osmHighwayLengthKm": 0,
+                        "aiBuildingsCountEstimation": 0,
+                        "aiRoadCountEstimationKm": 0,
+                        "buildingCount6Months": 0,
+                        "highwayLength6MonthsKm": 0,
+                    },
+                    "meta": {
+                        "indicators": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md",
+                        "metrics": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md",
+                    },
                 }
             }
-        },
+        }
     },
-    500: {"model": ErrorMessage},
+    "500": {"model": ErrorMessage},
 }
 
 
