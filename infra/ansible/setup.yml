@@ -9,16 +9,12 @@
       bind_port: '8000'
 
   tasks:
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: yes
-        cache_valid_time: 3600
-
-    - name: Upgrade apt packages
+    - name: Update apt cache and upgrade packages
       ansible.builtin.apt:
         update_cache: yes
         upgrade: dist
         dpkg_options: 'force-confold,force-confdef'
+        cache_valid_time: 14400
 
     - name: Install generic packages
       ansible.builtin.apt:
@@ -79,6 +75,14 @@
         path: /opt/raw-data-api
         recurse: true
         mode: u+rw,g-wx,o-rwx
+
+    - name: Generate config file for backend
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/templates/config.txt.j2"
+        dest: /opt/raw-data-api/config.txt
+        owner: "{{ LINUX_PROCESS_USER }}"
+        group: "{{ LINUX_PROCESS_GROUP }}"
+        mode: '0444'
 
     - name: Generate env file containing PostgreSQL credentials
       ansible.builtin.template:

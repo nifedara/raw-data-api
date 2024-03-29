@@ -1,0 +1,65 @@
+---
+- name: Setup default roles in Azure PostgreSQL
+  hosts: all
+  become: yes
+  become_user: postgres
+  tasks:
+    - name: Create new read-only role
+      community.postgresql.postgresql_user:
+        db: "{{ PGDATABASE }}"
+        name: hot_readonly
+        role_attr_flags: NOLOGIN
+
+    - name: GRANT read-only privs for read-only role
+      community.postgresql.postgresql_privs:
+        GRANT SELECT
+        db: "{{ PGDATABASE }}"
+        name: hot_readonly
+        role_attr_flags: NOLOGIN
+
+    - name: Create new read-write role
+      community.postgresql.postgresql_user:
+        db: "{{ PGDATABASE }}"
+        name: hot_readwrite
+        role_attr_flags: NOLOGIN
+
+    - name: GRANT read-write privs for read-write role
+      community.postgresql.postgresql_privs:
+        GRANT INSERT UPDATE DELETE REFERENCES TRIGGER CREATE CONNECT TEMPORARY EXECUTE USAGE
+        db: "{{ PGDATABASE }}"
+        name: hot_readwrite
+        role_attr_flags: NOLOGIN
+
+    - name: Create new read-only app user
+      community.postgresql.postgresql_user:
+        db: "{{ PGDATABASE }}"
+        name: app_xyz_ro
+        password: xyz
+        expires: infinity
+        role_attr_flags: INHERIT
+
+    - name: Make read-only app user a member of the read-only role
+      community.postgresql.postgresql_membership:
+        groups: hot_readonly
+        target_roles: app_xyz_ro
+        db: "{{ PGDATABASE }}"
+        login_host:
+        login_user:
+        login_password:
+
+    - name: Create new read-write app user
+      community.postgresql.postgresql_user:
+        db: "{{ PGDATABASE }}"
+        name: app_xyz_rw
+        password: xyz
+        expires: infinity
+        role_attr_flags: INHERIT
+
+    - name: Make read-write app user a member of the read-write role
+      community.postgresql.postgresql_membership:
+        groups: hot_readwrite
+        target_roles: app_xyz_rw
+        login_db: {{ PGDATABASE }}
+        login_host: {{ PGHOST }}
+        login_user: {{ PGUSER }}
+        login_password: {{ PGPASSWORD }}

@@ -1,0 +1,30 @@
+[DB]
+PGPASSWORD={{ PGPASSWORD }}
+PGUSER={{ PGUSER }}
+PGHOST={{ PGHOST }}
+PGPORT={{ PGPORT }}
+PGDATABASE={{ PGDATABASE }}
+
+; OAuth2 app registered at (whose?) OSM account
+[OAUTH]
+client_id={{ OSM_OAUTH_CLIENT_ID }}
+client_secret={{ OSM_OAUTH_CLIENT_SECRET }}
+url=https://www.openstreetmap.org
+scope=read_prefs
+login_redirect_uri=https://{{ app.base_uri }}/latest/auth/callback/
+secret_key={{ APP_RANDOM_SECRET_KEY }}
+
+[API_CONFIG]
+RATE_LIMITER_STORAGE_URI=rediss://:{{ REDIS_PASSWORD }}@{{ REDIS_HOST }}:{{ REDIS_PORT }}/0?ssl_cert_reqs=required
+RATE_LIMIT_PER_MIN=50
+EXPORT_MAX_AREA_SQKM=1000000
+
+[CELERY]
+CELERY_BROKER_URL=rediss://:{{ REDIS_PASSWORD }}@{{ REDIS_HOST }}:{{ REDIS_PORT }}/0?ssl_cert_reqs=required
+CELERY_RESULT_BACKEND=rediss://:{{ REDIS_PASSWORD }}@{{ REDIS_HOST }}:{{ REDIS_PORT }}/0?ssl_cert_reqs=required
+
+[EXPORT_UPLOAD]
+FILE_UPLOAD_METHOD=s3
+BUCKET_NAME={{ EXPORT_UPLOAD_BUCKET_NAME }}
+AWS_ACCESS_KEY_ID={{ AWS_ACCESS_KEY_ID }}
+AWS_SECRET_ACCESS_KEY={{ AWS_SECRET_ACCESS_KEY }}
