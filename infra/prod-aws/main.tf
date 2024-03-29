@@ -134,7 +134,11 @@ module "ecs-api" {
       APP_SECRET_KEY = var.app_secret_key
     }
   )
-  container_envvars = local.container_envvars
+  container_envvars = merge(local.container_envvars,
+    {
+      ALLOW_BIND_ZIP_FILTER = "True"
+    }
+  )
 
   service_subnets = module.vpc.private_subnets
 
