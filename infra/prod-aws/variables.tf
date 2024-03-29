@@ -89,3 +89,14 @@ variable "alarm_settings" {
   }
 }
 
+variable "sentry_dsn" {}
+variable "remote_db_arn" {}
+variable "app_secret_key" {}
+variable "dummy_arn" {}
+variable "flower_creds" {}
+variable "DNS_zone" {}
+variable "DNS_domain" {}
+variable "SSH_key_name" {}
+variable "bucket_name" {}
+variable "container_secrets" {}
+
