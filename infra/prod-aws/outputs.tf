@@ -28,7 +28,6 @@ output "secrets_manager_entries" {
   value = concat(
     [
       module.db.database_credentials,
-      values(var.container_secrets),
       var.sentry_dsn,
       var.remote_db_arn,
       var.app_secret_key
