@@ -19,12 +19,13 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-import errno
+# Standard library imports
 import logging
 import os
 from configparser import ConfigParser
 from distutils.util import strtobool
 
+# Third party imports
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -73,6 +74,10 @@ EXPORT_MAX_AREA_SQKM = os.environ.get("EXPORT_MAX_AREA_SQKM") or int(
 
 INDEX_THRESHOLD = os.environ.get("INDEX_THRESHOLD") or int(
     config.get("API_CONFIG", "INDEX_THRESHOLD", fallback=5000)
+)
+
+MAX_WORKERS = os.environ.get("MAX_WORKERS") or config.get(
+    "API_CONFIG", "MAX_WORKERS", fallback=os.cpu_count()
 )
 
 # get log level from config
@@ -198,10 +203,10 @@ USE_CONNECTION_POOLING = get_bool_env_var(
 # Queue
 
 DEFAULT_QUEUE_NAME = os.environ.get("DEFAULT_QUEUE_NAME") or config.get(
-    "API_CONFIG", "DEFAULT_QUEUE_NAME", fallback="raw_ondemand"
+    "API_CONFIG", "DEFAULT_QUEUE_NAME", fallback="raw_daemon"
 )
-DAEMON_QUEUE_NAME = os.environ.get("DAEMON_QUEUE_NAME") or config.get(
-    "API_CONFIG", "DAEMON_QUEUE_NAME", fallback="raw_daemon"
+ONDEMAND_QUEUE_NAME = os.environ.get("ONDEMAND_QUEUE_NAME") or config.get(
+    "API_CONFIG", "ONDEMAND_QUEUE_NAME", fallback="raw_ondemand"
 )
 
 # Polygon statistics which will deliver the stats of approx buildings/ roads in the area
@@ -296,6 +301,7 @@ if ENABLE_HDX_EXPORTS:
         )
 
     else:
+        # Standard library imports
         import json
 
         hdx_credentials_json = json.loads(hdx_credentials)
@@ -307,8 +313,8 @@ if ENABLE_HDX_EXPORTS:
 
         if None in (HDX_SITE, HDX_API_KEY, HDX_OWNER_ORG, HDX_MAINTAINER):
             raise ValueError("HDX Remote Credentials Malformed")
-            logging.error("HDX Remote Credentials Malformed")
 
+    # Third party imports
     from hdx.api.configuration import Configuration
 
     try:
@@ -325,6 +331,7 @@ if ENABLE_HDX_EXPORTS:
         ENABLE_HDX_EXPORTS = False
 
 if ENABLE_HDX_EXPORTS:
+    # Third party imports
     from hdx.data.dataset import Dataset
     from hdx.data.vocabulary import Vocabulary
 
@@ -377,13 +384,15 @@ def get_db_connection_params() -> dict:
         )
 
     else:
+        # Standard library imports
         import json
 
         connection_params = json.loads(db_credentials)
 
         connection_params["user"] = connection_params["username"]
-        for k in ("dbinstanceidentifier", "engine", "username"):
-            connection_params.pop(k, None)
+        for k in ("dbinstanceidentifier", "dbClusterIdentifier", "engine", "username"):
+            if k in connection_params:
+                connection_params.pop(k, None)
 
     if None in connection_params.values():
         raise ValueError(
@@ -442,6 +451,7 @@ def get_oauth_credentials() -> tuple:
         )
 
     else:
+        # Standard library imports
         import json
 
         oauth2_credentials_json = json.loads(oauth2_credentials)

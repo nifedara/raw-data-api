@@ -17,6 +17,7 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page contains Main core logic of app"""
+# Standard library imports
 import concurrent.futures
 import json
 import os
@@ -32,6 +33,7 @@ from datetime import datetime, timedelta, timezone
 from json import dumps
 from json import loads as json_loads
 
+# Third party imports
 import boto3
 import humanize
 import orjson
@@ -43,7 +45,9 @@ from geojson import FeatureCollection
 from psycopg2 import OperationalError, connect, sql
 from psycopg2.extras import DictCursor
 from slugify import slugify
+from tqdm import tqdm
 
+# Reader imports
 from src.config import (
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
@@ -59,6 +63,7 @@ from src.config import (
 from src.config import EXPORT_PATH as export_path
 from src.config import INDEX_THRESHOLD as index_threshold
 from src.config import (
+    MAX_WORKERS,
     PARALLEL_PROCESSING_CATEGORIES,
     POLYGON_STATISTICS_API_URL,
     PROCESS_SINGLE_CATEGORY_IN_POSTGRES,
@@ -89,27 +94,35 @@ from src.query_builder.builder import (
 from src.validation.models import EXPORT_TYPE_MAPPING, RawDataOutputType
 
 if ENABLE_SOZIP:
+    # Third party imports
     import sozipfile.sozipfile as zipfile
 else:
+    # Standard library imports
     import zipfile
 
 # import instance for pooling
 if use_connection_pooling:
+    # Reader imports
     from src.db_session import database_instance
 else:
     database_instance = None
+# Standard library imports
 import logging as log
 
 if ENABLE_CUSTOM_EXPORTS:
     if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
+        # Third party imports
         import duckdb
 
+        # Reader imports
         from src.config import DUCK_DB_MEMORY_LIMIT, DUCK_DB_THREAD_LIMIT
 
 if ENABLE_HDX_EXPORTS:
+    # Third party imports
     from hdx.data.dataset import Dataset
     from hdx.data.resource import Resource
 
+    # Reader imports
     from src.config import HDX_MAINTAINER, HDX_OWNER_ORG, HDX_URL_PREFIX
 
 
@@ -1024,7 +1037,7 @@ class PolygonStats:
         try:
             query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
             payload = {"query": query}
-            response = requests.post(self.API_URL, json=payload, timeout=60)
+            response = requests.post(self.API_URL, json=payload, timeout=30)
             response.raise_for_status()  # Raise an HTTPError for bad responses
             return response.json()
         except Exception as e:
@@ -1234,16 +1247,18 @@ class CustomExport:
             if not self.params.dataset.dataset_prefix:
                 self.params.dataset.dataset_prefix = dataset_prefix
             if not self.params.dataset.dataset_locations:
-                self.params.dataset.dataset_locations = dataset_locations
+                self.params.dataset.dataset_locations = json.loads(dataset_locations)
 
         self.uuid = str(uuid.uuid4().hex)
         self.parallel_process_state = False
-
+        self.default_export_base_name = (
+            self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix
+        )
         self.default_export_path = os.path.join(
             export_path,
             self.uuid,
             self.params.dataset.dataset_folder,
-            self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix,
+            self.default_export_base_name,
         )
         if os.path.exists(self.default_export_path):
             shutil.rmtree(self.default_export_path, ignore_errors=True)
@@ -1252,7 +1267,7 @@ class CustomExport:
         if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
             self.duck_db_db_path = os.path.join(
                 self.default_export_path,
-                f"{self.iso3 if self.iso3 else self.params.dataset.dataset_prefix}.db",
+                f"{self.default_export_base_name}.db",
             )
             self.duck_db_instance = DuckDB(self.duck_db_db_path)
 
@@ -1451,10 +1466,12 @@ class CustomExport:
             and PARALLEL_PROCESSING_CATEGORIES is True
         ):
             logging.info(
-                "Using Parallel Processing for %s Export formats", category_name.lower()
+                "Using Parallel Processing for %s Export formats with total %s workers",
+                category_name.lower(),
+                MAX_WORKERS,
             )
             with concurrent.futures.ThreadPoolExecutor(
-                max_workers=os.cpu_count()
+                max_workers=int(MAX_WORKERS)
             ) as executor:
                 futures = [
                     executor.submit(process_export_format, export_format)
@@ -1463,6 +1480,14 @@ class CustomExport:
                 resources = [
                     future.result()
                     for future in concurrent.futures.as_completed(futures)
+                ]
+                resources = [
+                    future.result()
+                    for future in tqdm(
+                        concurrent.futures.as_completed(futures),
+                        total=len(futures),
+                        desc=f"{category_name.lower()}: Processing Export Formats",
+                    )
                 ]
         else:
             for exf in export_formats:
@@ -1594,7 +1619,9 @@ class CustomExport:
                     resource["uploaded_to_hdx"] = True
                 else:
                     non_hdx_resources.append(resource)
-            category_name, hdx_dataset_info = uploader.upload_dataset(self.params.meta)
+            category_name, hdx_dataset_info = uploader.upload_dataset(
+                self.params.meta and USE_S3_TO_UPLOAD
+            )
             hdx_dataset_info["resources"].extend(non_hdx_resources)
             return {category_name: hdx_dataset_info}
 
@@ -1674,8 +1701,11 @@ class CustomExport:
                     executor.submit(self.process_category, category): category
                     for category in self.params.categories
                 }
-
-                for future in concurrent.futures.as_completed(futures):
+                for future in tqdm(
+                    concurrent.futures.as_completed(futures),
+                    total=len(futures),
+                    desc=f"{self.default_export_base_name} : Processing Categories",
+                ):
                     category = futures[future]
                     uploaded_resources = future.result()
                     category_result = CategoryResult(
@@ -1846,7 +1876,7 @@ class HDXUploader:
             try:
                 self.dataset.create_in_hdx(
                     allow_no_resources=True,
-                    hxl_update=False,
+                    # hxl_update=False,
                 )
                 dataset_info["hdx_upload"] = "SUCCESS"
             except Exception as ex:
@@ -1925,7 +1955,7 @@ class HDX:
                 hdx_data.get("iso3", None),
                 hdx_data.get("hdx_upload", True),
                 json.dumps(hdx_data.get("dataset")),
-                hdx_data.get("queue", "raw_daemon"),
+                hdx_data.get("queue", "raw_ondemand"),
                 hdx_data.get("meta", False),
                 json.dumps(hdx_data.get("categories", {})),
                 json.dumps(hdx_data.get("geometry")),
@@ -2055,7 +2085,7 @@ class HDX:
                 hdx_data.get("iso3", None),
                 hdx_data.get("hdx_upload", True),
                 json.dumps(hdx_data.get("dataset")),
-                hdx_data.get("queue", "raw_daemon"),
+                hdx_data.get("queue", "raw_ondemand"),
                 hdx_data.get("meta", False),
                 json.dumps(hdx_data.get("categories", {})),
                 json.dumps(hdx_data.get("geometry")),

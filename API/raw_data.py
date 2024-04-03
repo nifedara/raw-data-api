@@ -19,14 +19,17 @@
 
 """[Router Responsible for Raw data API ]
 """
+# Standard library imports
 import json
 
+# Third party imports
 import redis
 from area import area
 from fastapi import APIRouter, Body, Depends, HTTPException, Request, Path, Query
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
+# Reader imports
 from src.app import RawData
 from src.config import (
     ALLOW_BIND_ZIP_FILTER,
@@ -458,7 +461,6 @@ def get_osm_current_snapshot_as_file(
                         ],
                     )
 
-    # queue_name = "raw_daemon" if not params.uuid else "raw_ondemand"
     queue_name = DEFAULT_QUEUE_NAME  # Everything directs to default now
     task = process_raw_data.apply_async(
         args=(params.model_dump(),),
@@ -495,7 +497,7 @@ def get_osm_current_snapshot_as_plain_geojson(
     """
     area_m2 = area(json.loads(params.geometry.model_dump_json()))
     area_km2 = area_m2 * 1e-6
-    if area_km2 > 10:
+    if area_km2 > 5:
         raise HTTPException(
             status_code=400,
             detail=[
