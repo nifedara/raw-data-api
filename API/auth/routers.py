@@ -87,6 +87,9 @@ class User(BaseModel):
     osm_id: int
     role: int
 
+    class Config:
+        json_schema_extra = {"example": {"osm_id": 123, "role": 1}}
+
 
 # Create user
 @router.post(
