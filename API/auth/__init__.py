@@ -78,7 +78,7 @@ def get_optional_user(
 def admin_required(user: AuthUser = Depends(login_required)):
     db_user = get_user_from_db(user.id)
     if not db_user["role"] is UserRole.ADMIN.value:
-        raise HTTPException(status_code=403, detail="User is not an admin")
+        raise HTTPException(status_code=403, detail=[{"msg": "User is not an admin"}])
     return user
 
 
@@ -90,5 +90,5 @@ def staff_required(user: AuthUser = Depends(login_required)):
         db_user["role"] is UserRole.STAFF.value
         or db_user["role"] is UserRole.ADMIN.value
     ):
-        raise HTTPException(status_code=403, detail="User is not a staff")
+        raise HTTPException(status_code=403, detail=[{"msg": "User is not a staff"}])
     return user
