@@ -27,6 +27,16 @@ class AuthUser(BaseModel):
     img_url: Union[str, None]
     role: UserRole = Field(default=UserRole.GUEST.value)
 
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "123",
+                "username": "HOT Team",
+                "img_url": "https://hotteamimage.com",
+                "role": UserRole.GUEST.value,
+            }
+        }
+
 
 osm_auth = Auth(*get_oauth_credentials())
 
