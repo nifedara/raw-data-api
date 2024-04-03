@@ -266,7 +266,9 @@ def get_list_details(
     """
 
     if queue_name not in queues:
-        raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
+        raise HTTPException(
+            status_code=404, detail=[{"msg": f"Queue '{queue_name}' not found"}]
+        )
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
     list_items = redis_client.lrange(queue_name, 0, -1)
