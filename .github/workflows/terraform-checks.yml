@@ -58,7 +58,7 @@ jobs:
         with:
           iac_type: "terraform"
           iac_dir: "./infra/prod-aws"
-          iac_version: "v14"
+          iac_version: "v15"
           policy_type: "all"
 
   checkov-production:
