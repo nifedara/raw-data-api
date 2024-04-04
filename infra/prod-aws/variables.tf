@@ -15,7 +15,7 @@ variable "project_meta" {
   default = {
     name       = "raw-data-services"
     short_name = "raw-data"
-    version    = "1.1.0"
+    version    = "1.1.2"
     url        = "https://raw-data.hotosm.org"
   }
 }
