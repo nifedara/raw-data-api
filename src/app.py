@@ -936,9 +936,7 @@ class S3FileTransfer:
         logging.debug("Uploaded %s in %s sec", file_name, time.time() - start_time)
         # generate the download url
         bucket_location = self.get_bucket_location(bucket_name=BUCKET_NAME)
-        object_url = (
-            f"""https://s3.{bucket_location}.amazonaws.com/{BUCKET_NAME}/{file_name}"""
-        )
+        object_url = f"""https://s3.dualstack.{bucket_location}.amazonaws.com/{BUCKET_NAME}/{file_name}"""
         return object_url
 
 
