@@ -1,3 +1,9 @@
+## 1.1.2 (2024-04-04)
+
+### Perf
+
+- **s3downloadlink**: changes download link to support ipv6
+
 ## 1.1.1 (2024-03-29)
 
 ### Fix
