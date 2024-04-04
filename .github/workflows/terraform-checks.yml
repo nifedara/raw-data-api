@@ -3,56 +3,24 @@ name: "Terraform Checks"
 on:
   push:
     branches:
-      - master
-      - main
       - develop
-      - "deployment/**"
     paths:
       - infra/**
 
   pull_request:
     branches:
-      - master
-      - main
       - develop
-      - "deployment/**"
     paths:
       - infra/**
 
 jobs:
-  terraform-CI-checks-staging:
-    name: "Formatting and validation Checks for Staging"
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: infra
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_CLOUD_TOKEN }}
-
-      - name: Check code formating
-        id: fmt
-        run: terraform fmt -check
-
-      - name: Initialise modules
-        id: init
-        run: terraform init
-
-      - name: Validate template
-        id: validate
-        run: terraform validate -no-color
 
   terraform-CI-check-production:
     name: "Formatting and validation Checks for Production"
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: infra/production
+        working-directory: infra/prod-aws
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -74,31 +42,12 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
-  terrascan-staging:
-    name: "Terrascan Staging Checks"
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: infra
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Run Terrascan on staging
-        id: terrascan
-        uses: tenable/terrascan-action@main
-        with:
-          iac_type: "terraform"
-          iac_dir: "./infra"
-          iac_version: "v14"
-          policy_type: "all"
-
   terrascan-production:
     name: "Terrascan Production Checks"
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: infra/production
+        working-directory: infra/prod-aws
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -108,23 +57,9 @@ jobs:
         uses: tenable/terrascan-action@main
         with:
           iac_type: "terraform"
-          iac_dir: "./infra/production"
+          iac_dir: "./infra/prod-aws"
           iac_version: "v14"
           policy_type: "all"
-
-  checkov-staging:
-    runs-on: ubuntu-latest
-    name: "Checkov Staging Checks"
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Checkov GitHub Action
-        uses: bridgecrewio/checkov-action@v12
-        with:
-          directory: infra/
-          output_format: cli,sarif
-          output_file_path: console,results.sarif
 
   checkov-production:
     runs-on: ubuntu-latest
@@ -138,7 +73,7 @@ jobs:
       - name: Checkov GitHub Action
         uses: bridgecrewio/checkov-action@v12
         with:
-          directory: infra/production/
+          directory: infra/prod-aws/
           output_format: cli,sarif
           output_file_path: console,results.sarif
 
