@@ -25,7 +25,7 @@ import json
 # Third party imports
 import redis
 from area import area
-from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, Path, Query
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
@@ -44,6 +44,8 @@ from src.validation.models import (
     RawDataCurrentParamsBase,
     SnapshotResponse,
     StatusResponse,
+    ErrorMessage,
+    common_responses,
 )
 
 from .api_worker import process_raw_data
@@ -54,15 +56,26 @@ router = APIRouter(prefix="", tags=["Extract"])
 redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
 
-@router.get("/status/", response_model=StatusResponse)
+@router.get(
+    "/status", response_model=StatusResponse, responses={"500": {"model": ErrorMessage}}
+)
 @version(1)
 def check_database_last_updated():
-    """Gives status about how recent the osm data is , it will give the last time that database was updated completely"""
+    """Gives status about how recent the osm data is. It will give the last time that database was updated completely"""
+
     result = RawData().check_status()
     return {"last_updated": result}
 
 
-@router.post("/snapshot/", response_model=SnapshotResponse)
+@router.post(
+    "/snapshot",
+    response_model=SnapshotResponse,
+    responses={
+        **common_responses,
+        404: {"model": ErrorMessage},
+        429: {"model": ErrorMessage},
+    },
+)
 @limiter.limit(f"{export_rate_limit}/minute")
 @version(1)
 def get_osm_current_snapshot_as_file(
@@ -414,7 +427,7 @@ def get_osm_current_snapshot_as_file(
                     status_code=403,
                     detail=[
                         {
-                            "msg": "Insufficient Permission to use folder structure exports , Remove / from filename or get access"
+                            "msg": "Insufficient Permission to use folder structure exports, Remove / from filename or get access"
                         }
                     ],
                 )
@@ -464,7 +477,9 @@ def get_osm_current_snapshot_as_file(
     )
 
 
-@router.post("/snapshot/plain/")
+@router.post(
+    "/snapshot/plain", responses={**common_responses, 404: {"model": ErrorMessage}}
+)
 @version(1)
 def get_osm_current_snapshot_as_plain_geojson(
     request: Request,
@@ -475,7 +490,7 @@ def get_osm_current_snapshot_as_plain_geojson(
 
     Args:
         request (Request): _description_
-        params (RawDataCurrentParamsBase): Same as /snapshot excpet multiple output format options and configurations
+        params (RawDataCurrentParamsBase): Same as /snapshot except multiple output format options and configurations
 
     Returns:
         Featurecollection: Geojson
@@ -496,14 +511,39 @@ def get_osm_current_snapshot_as_plain_geojson(
     return result
 
 
-@router.get("/countries/")
+@router.get("/countries", responses={"500": {"model": ErrorMessage}})
 @version(1)
-def get_countries(q: str = ""):
+def get_countries(
+    q: str = Query("", description="Query parameter for filtering countries")
+):
+    """
+    Gets Countries list from the database
+
+    Args:
+        q (str): query parameter for filtering countries
+
+    Returns:
+        featurecollection: geojson of country
+    """
+
     result = RawData().get_countries_list(q)
     return result
 
 
-@router.get("/osm_id/")
+@router.get(
+    "/osm_id",
+    responses={"404": {"model": ErrorMessage}, "500": {"model": ErrorMessage}},
+)
 @version(1)
-def get_osm_feature(osm_id: int):
+def get_osm_feature(osm_id: int = Path(description="The OSM ID of feature")):
+    """
+    Gets geometry of osm_id in geojson
+
+    Args:
+        osm_id (int): osm_id of feature
+
+    Returns:
+        featurecollection: Geojson
+    """
+
     return RawData().get_osm_feature(osm_id)
