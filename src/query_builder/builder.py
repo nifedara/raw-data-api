@@ -17,11 +17,14 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 """Page Contains Query logic required for application"""
+# Standard library imports
 import re
 from json import dumps, loads
 
+# Third party imports
 from geomet import wkt
 
+# Reader imports
 from src.config import USE_DUCK_DB_FOR_CUSTOM_EXPORTS
 from src.config import logger as logging
 from src.validation.models import SupportedFilters, SupportedGeometryFilters
@@ -774,6 +777,11 @@ def get_countries_query(q):
     query = "Select ST_AsGeoJSON(cf.*) FROM countries cf"
     if q:
         query += f" WHERE name ILIKE '%{q}%'"
+    return query
+
+
+def get_country_cid(cid):
+    query = f"Select ST_AsGeoJSON(cf.*) FROM countries cf where cid = {cid}"
     return query
 
 
