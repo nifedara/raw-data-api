@@ -85,6 +85,7 @@ from src.query_builder.builder import (
     extract_geometry_type_query,
     generate_polygon_stats_graphql_query,
     get_countries_query,
+    get_country_cid,
     get_country_from_iso,
     get_country_geom_from_iso,
     get_osm_feature_query,
@@ -846,6 +847,23 @@ class RawData:
             features.append(orjson.loads(row[0]))
         self.cur.close()
         return FeatureCollection(features=features)
+
+    def get_country(self, q):
+        """Gets specific country from the database
+
+        Args:
+            cid (_type_): country cid
+
+        Returns:
+            featurecollection: geojson of country
+        """
+        query = get_country_cid(q)
+        self.cur.execute(query)
+        get_fetched = self.cur.fetchall()
+        self.cur.close()
+        if len(get_fetched) < 1:
+            return "Not found"
+        return orjson.loads(get_fetched[0][0])
 
     def get_osm_feature(self, osm_id):
         """Returns geometry of osm_id in geojson

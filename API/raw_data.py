@@ -503,6 +503,13 @@ def get_countries(q: str = ""):
     return result
 
 
+@router.get("/countries/{cid}/")
+@version(1)
+def get_specific_country(cid: int):
+    result = RawData().get_country(cid)
+    return result
+
+
 @router.get("/osm_id/")
 @version(1)
 def get_osm_feature(osm_id: int):
