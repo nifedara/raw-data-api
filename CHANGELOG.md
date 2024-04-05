@@ -1,3 +1,9 @@
+## 1.1.3 (2024-04-05)
+
+### Fix
+
+- **test_api**: unittest fix for plain endpoint
+
 ## 1.1.2 (2024-04-04)
 
 ### Perf
