@@ -1,3 +1,9 @@
+## 1.2.0 (2024-04-05)
+
+### Feat
+
+- **countries**: adds cid country get endpoint
+
 ## 1.1.3 (2024-04-05)
 
 ### Fix
