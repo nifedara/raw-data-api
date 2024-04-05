@@ -1,8 +1,11 @@
+# Standard library imports
 import os
 import time
 
+# Third party imports
 from fastapi.testclient import TestClient
 
+# Reader imports
 from API.main import app
 
 client = TestClient(app)
@@ -722,18 +725,20 @@ def test_snapshot_plain():
     response = client.post(
         "/v1/snapshot/plain/",
         json={
+            "type": "Feature",
+            "properties": {},
             "geometry": {
-                "type": "Polygon",
                 "coordinates": [
                     [
-                        [83.96919250488281, 28.194446860487773],
-                        [83.99751663208006, 28.194446860487773],
-                        [83.99751663208006, 28.214869548073377],
-                        [83.96919250488281, 28.214869548073377],
-                        [83.96919250488281, 28.194446860487773],
+                        [83.98223911755514, 28.21348731781771],
+                        [83.98223911755514, 28.208639873158987],
+                        [83.9881146731152, 28.208639873158987],
+                        [83.9881146731152, 28.21348731781771],
+                        [83.98223911755514, 28.21348731781771],
                     ]
                 ],
-            }
+                "type": "Polygon",
+            },
         },
     )
     assert response.status_code == 200
