@@ -5,7 +5,7 @@ from fastapi_versioning import version
 from src.config import DEFAULT_QUEUE_NAME
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN
-from src.validation.models import DynamicCategoriesModel
+from src.validation.models import DynamicCategoriesModel, ErrorMessage, common_responses
 
 from .api_worker import process_custom_request
 from .auth import AuthUser, UserRole, staff_required
@@ -13,7 +13,23 @@ from .auth import AuthUser, UserRole, staff_required
 router = APIRouter(prefix="/custom", tags=["Custom Exports"])
 
 
-@router.post("/snapshot/")
+@router.post(
+    "/snapshot",
+    responses={
+        **common_responses,
+        "429": {"model": ErrorMessage},
+        "200": {
+            "content": {
+                "application/json": {
+                    "example": {
+                        "task_id": "3fded368-456f-4ef4-a1b8-c099a7f77ca4",
+                        "track_link": "/tasks/status/3fded368-456f-4ef4-a1b8-c099a7f77ca4/",
+                    }
+                }
+            }
+        },
+    },
+)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def process_custom_requests(
