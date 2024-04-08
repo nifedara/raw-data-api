@@ -205,7 +205,11 @@ module "ecs-worker-daemon" {
     "-n", "ondemand_daemon-%h"
   ]
   container_secrets = local.container_secrets
-  container_envvars = local.container_envvars
+  container_envvars = merge(local.container_envvars,
+    {
+      ALLOW_BIND_ZIP_FILTER = "True"
+    }
+  )
 
   service_subnets = module.vpc.private_subnets
 
