@@ -1890,7 +1890,6 @@ class HDXUploader:
 
             self.dataset.set_time_period(datetime.now())
             try:
-                print(self.dataset.resources)
                 self.dataset.create_in_hdx(
                     allow_no_resources=True,
                     hxl_update=False,
