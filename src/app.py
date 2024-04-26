@@ -1467,7 +1467,7 @@ class CustomExport:
             resource["format"] = export_format.suffix
             resource["description"] = export_format.driver_name
             resource["size"] = os.path.getsize(zip_path)
-            resource["last_modified"] = datetime.now().isoformat()
+            # resource["last_modified"] = datetime.now().isoformat()
             logging.info(
                 "Done %s:%s in %s",
                 category_name.lower(),
@@ -1890,6 +1890,7 @@ class HDXUploader:
 
             self.dataset.set_time_period(datetime.now())
             try:
+                print(self.dataset.resources)
                 self.dataset.create_in_hdx(
                     allow_no_resources=True,
                     hxl_update=False,
