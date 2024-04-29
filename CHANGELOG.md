@@ -1,3 +1,9 @@
+## 1.2.1 (2024-04-29)
+
+### Fix
+
+- **hdx-lib**: upgraded the hdx lib to fix last-modified bug
+
 ## 1.2.0 (2024-04-05)
 
 ### Feat
