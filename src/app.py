@@ -1264,10 +1264,10 @@ class CustomExport:
                 self.params.dataset.dataset_prefix = dataset_prefix
             if not self.params.dataset.dataset_locations:
                 self.params.dataset.dataset_locations = json.loads(dataset_locations)
-        self.uuid=uid
-        if self.uuid is None : 
+        self.uuid = uid
+        if self.uuid is None:
             self.uuid = str(uuid.uuid4().hex)
-        
+
         self.parallel_process_state = False
         self.default_export_base_name = (
             self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix
