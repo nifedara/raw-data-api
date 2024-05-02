@@ -1,3 +1,9 @@
+## 1.2.2 (2024-05-02)
+
+### Fix
+
+- **api_worker**: clean dir when task fails
+
 ## 1.2.1 (2024-04-29)
 
 ### Fix
