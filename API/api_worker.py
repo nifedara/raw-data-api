@@ -275,8 +275,22 @@ def process_raw_data(self, params, user=None):
 
 
 class BaseclassTask(celery.Task):
+    """Base class for celery tasks
+
+    Args:
+        celery (_type_): _description_
+    """
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
+        """Logic when task fails
+
+        Args:
+            exc (_type_): _description_
+            task_id (_type_): _description_
+            args (_type_): _description_
+            kwargs (_type_): _description_
+            einfo (_type_): _description_
+        """
         # exc (Exception) - The exception raised by the task.
         # args (Tuple) - Original arguments for the task that failed.
         # kwargs (Dict) - Original keyword arguments for the task that failed.
