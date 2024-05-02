@@ -1234,7 +1234,7 @@ class CustomExport:
     - params (DynamicCategoriesModel): An instance of DynamicCategoriesModel containing configuration settings.
     """
 
-    def __init__(self, params):
+    def __init__(self, params, uid=None):
         self.params = params
         self.iso3 = self.params.iso3
         self.HDX_SUPPORTED_FORMATS = ["geojson", "gpkg", "kml", "shp"]
@@ -1264,8 +1264,10 @@ class CustomExport:
                 self.params.dataset.dataset_prefix = dataset_prefix
             if not self.params.dataset.dataset_locations:
                 self.params.dataset.dataset_locations = json.loads(dataset_locations)
+        self.uuid = uid
+        if self.uuid is None:
+            self.uuid = str(uuid.uuid4().hex)
 
-        self.uuid = str(uuid.uuid4().hex)
         self.parallel_process_state = False
         self.default_export_base_name = (
             self.iso3.upper() if self.iso3 else self.params.dataset.dataset_prefix

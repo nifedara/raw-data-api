@@ -25,6 +25,7 @@ from src.config import (
     DEFAULT_SOFT_TASK_LIMIT,
     ENABLE_SOZIP,
     ENABLE_TILES,
+    EXPORT_PATH,
     HDX_HARD_TASK_LIMIT,
     HDX_SOFT_TASK_LIMIT,
 )
@@ -273,11 +274,38 @@ def process_raw_data(self, params, user=None):
         raise ex
 
 
+class BaseclassTask(celery.Task):
+    """Base class for celery tasks
+
+    Args:
+        celery (_type_): _description_
+    """
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        """Logic when task fails
+
+        Args:
+            exc (_type_): _description_
+            task_id (_type_): _description_
+            args (_type_): _description_
+            kwargs (_type_): _description_
+            einfo (_type_): _description_
+        """
+        # exc (Exception) - The exception raised by the task.
+        # args (Tuple) - Original arguments for the task that failed.
+        # kwargs (Dict) - Original keyword arguments for the task that failed.
+        print("{0!r} failed: {1!r}".format(task_id, exc))
+        clean_dir = os.path.join(EXPORT_PATH, task_id)
+        if os.path.exists(clean_dir):
+            shutil.rmtree(clean_dir)
+
+
 @celery.task(
     bind=True,
     name="process_custom_request",
     time_limit=HDX_HARD_TASK_LIMIT,
     soft_time_limit=HDX_SOFT_TASK_LIMIT,
+    base=BaseclassTask,
 )
 def process_custom_request(self, params, user=None):
     if self.request.retries > 0:
@@ -286,7 +314,7 @@ def process_custom_request(self, params, user=None):
 
     if not params.dataset:
         params.dataset = DatasetConfig()
-    custom_object = CustomExport(params)
+    custom_object = CustomExport(params, uid=self.request.id)
     try:
         return custom_object.process_custom_categories()
     except Exception as ex:
