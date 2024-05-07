@@ -23,8 +23,8 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          python setup.py install
           pip install mkdocs-material==8.5.11 mkdocs-jupyter==0.22.0 neoteroi-mkdocs==0.1.2 pdocs==1.0.1
+          python setup.py install
           mv config.txt.sample config.txt
       - name: Update API docs
         run: |
