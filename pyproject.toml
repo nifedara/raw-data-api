@@ -52,5 +52,5 @@ update_changelog_on_bump = true
 
 
 [tool.setuptools]
-packages = { find = { where = ["src","API"]} }
+packages = { find = {} }
 
