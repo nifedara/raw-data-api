@@ -166,7 +166,11 @@ py.test -k test function name
 
 ## Contribution & Development
 
-see [CONTRIBUTING](./docs/src/contributing.md)
+see [CONTRIBUTING](./contributing.md)
+
+## Workflow 
+Understand how Raw Data API works and connected pieces , 
+see [Workflow](./workflow.md)
 
 ## License
 
