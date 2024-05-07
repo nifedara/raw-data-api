@@ -27,6 +27,7 @@ nav:
   - Examples: "examples/Example_Python.ipynb"
   - API Code: "api/API/index.md"
   - Source Code: "api/src/index.md"
+  - Workflow: "workflow.md"
   - Contributing: "contributing.md"
   - Code of Conduct: "code_of_conduct.md"
 
