@@ -52,7 +52,7 @@ RUN pip install --user --no-cache-dir --upgrade pip setuptools wheel\
     && pip install --user --no-cache-dir GDAL=="$(gdal-config --version)" \
     && pip install --user --no-cache-dir -r requirements.txt
     
-RUN python setup.py install --user
+RUN python setup.py install
 
 
 FROM with-tippecanoe as prod
