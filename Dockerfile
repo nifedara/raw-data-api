@@ -42,19 +42,12 @@ RUN apt-get update \
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN gdal-config --version | awk -F'[.]' '{print $1"."$2}'
 
-COPY setup.py .
-COPY pyproject.toml . 
 COPY requirements.txt .
-COPY README.md .
-COPY LICENSE .
 
 RUN pip install --user --no-cache-dir --upgrade pip setuptools wheel\
     && pip install --user --no-cache-dir GDAL=="$(gdal-config --version)" \
     && pip install --user --no-cache-dir -r requirements.txt
     
-RUN python setup.py install
-
-
 FROM with-tippecanoe as prod
 COPY --from=python-builder /root/.local /home/appuser/.local
 
@@ -63,7 +56,7 @@ RUN useradd --system --uid 900 --home-dir /home/appuser --shell /bin/false appus
 
 USER appuser
 
-# API and source code, changes here don't invalidate previous layers , You can overwrite this block with -v
+# API and source code, changes here don't invalidate previous layers
 
 # Copy config.txt if you have your configuration setup in config
 # COPY config.txt .
@@ -72,5 +65,7 @@ COPY setup.py .
 COPY pyproject.toml .
 COPY API/ ./API/
 COPY src/ ./src/
+
+RUN python setup.py install --user
 
 CMD ["uvicorn", "API.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000", "--no-use-colors", "--proxy-headers"]
