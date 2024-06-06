@@ -1,14 +1,15 @@
 import json
 
-from fastapi import APIRouter, Body, Request
+from fastapi import APIRouter, Body, Request, Depends, HTTPException
 from fastapi_versioning import version
-
+from area import area
 from src.app import PolygonStats
 from src.config import LIMITER as limiter
 from src.config import POLYGON_STATISTICS_API_RATE_LIMIT
 from src.validation.models import StatsRequestParams
 
 router = APIRouter(prefix="/stats", tags=["Stats"])
+from .auth import AuthUser, UserRole, get_optional_user
 
 
 @router.post("/polygon/")
@@ -45,6 +46,7 @@ async def get_polygon_stats(
             },
         },
     ),
+    user: AuthUser = Depends(get_optional_user),
 ):
     """Get statistics for the specified polygon.
 
@@ -55,6 +57,19 @@ async def get_polygon_stats(
     Returns:
         dict: A dictionary containing statistics for the specified polygon.
     """
+    if not (user.role is UserRole.STAFF.value or user.role is UserRole.ADMIN.value):
+        area_m2 = area(json.loads(params.geometry.model_dump_json()))
+        area_km2 = area_m2 * 1e-6
+        limit = 10000
+        if area_km2 > limit:
+            raise HTTPException(
+                status_code=400,
+                detail=[
+                    {
+                        "msg": f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : {limit} Sq.KM"""
+                    }
+                ],
+            )
     feature = None
     if params.geometry:
         feature = {

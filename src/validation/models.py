@@ -328,18 +328,7 @@ class StatsRequestParams(BaseModel, GeometryValidatorMixin):
             raise ValueError("Either geometry or iso3 should be supplied.")
         return value
 
-    @validator("geometry", pre=True, always=True)
-    def validate_geometry_area(cls, value):
-        """Validate that the geometry area does not exceed threshold."""
-        if value is not None:
-            geometry_json = value
-            area_m2 = area(geometry_json)
-            max_area = 10000
-            if area_m2 * 1e-6 > max_area:
-                raise ValueError(
-                    f"The area {area_m2 * 1e-6} sqkm of the geometry should not exceed {max_area} square km."
-                )
-        return value
+
 
 
 ### HDX BLock
