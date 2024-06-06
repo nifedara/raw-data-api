@@ -1053,7 +1053,7 @@ class PolygonStats:
         """
         MAX_RETRIES = 2  # Maximum number of retries
         INITIAL_DELAY = 1  # Initial delay in seconds
-        MAX_DELAY = 8  
+        MAX_DELAY = 8
 
         retries = 0
         delay = INITIAL_DELAY
@@ -1063,7 +1063,7 @@ class PolygonStats:
                 query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
                 payload = {"query": query}
                 response = requests.post(self.API_URL, json=payload, timeout=20)
-                response.raise_for_status() 
+                response.raise_for_status()
                 return response.json()
             except Exception as e:
                 print(f"Request failed: {e}")
@@ -1077,7 +1077,7 @@ class PolygonStats:
         # If all retries failed, return None
         print("Maximum retries exceeded. Unable to fetch data.")
         return None
-    
+
     def get_summary_stats(self):
         """
         Generates summary statistics for buildings and roads.
