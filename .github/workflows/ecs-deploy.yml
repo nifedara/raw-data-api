@@ -26,7 +26,7 @@ jobs:
       packages: write
 
     outputs:
-      imageid: ${{ steps.meta.outputs.tags }}
+      image_tags: ${{ steps.meta.outputs.tags }}
 
     steps:
       - uses: docker/setup-qemu-action@v3
