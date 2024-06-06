@@ -22,6 +22,7 @@ import concurrent.futures
 import json
 import os
 import pathlib
+import random
 import re
 import shutil
 import subprocess
@@ -1050,15 +1051,32 @@ class PolygonStats:
         Returns:
             dict: Raw statistics translated into JSON.
         """
-        try:
-            query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
-            payload = {"query": query}
-            response = requests.post(self.API_URL, json=payload, timeout=30)
-            response.raise_for_status()  # Raise an HTTPError for bad responses
-            return response.json()
-        except Exception as e:
-            print(f"Request failed: {e}")
-            return None
+        MAX_RETRIES = 2  # Maximum number of retries
+        INITIAL_DELAY = 1  # Initial delay in seconds
+        MAX_DELAY = 8
+
+        retries = 0
+        delay = INITIAL_DELAY
+
+        while retries < MAX_RETRIES:
+            try:
+                query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
+                payload = {"query": query}
+                response = requests.post(self.API_URL, json=payload, timeout=20)
+                response.raise_for_status()
+                return response.json()
+            except Exception as e:
+                print(f"Request failed: {e}")
+                retries += 1
+                delay = min(delay * 0.5, MAX_DELAY)  # Exponential backoff
+                jitter = random.uniform(0, 1)  #  jitter to avoid simultaneous retries
+                sleep_time = delay * (1 + jitter)
+                print(f"Retrying in {sleep_time} seconds...")
+                time.sleep(sleep_time)
+
+        # If all retries failed, return None
+        print("Maximum retries exceeded. Unable to fetch data.")
+        return None
 
     def get_summary_stats(self):
         """
