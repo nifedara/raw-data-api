@@ -1,3 +1,13 @@
+## 1.3.0 (2024-06-06)
+
+### Feat
+
+- **polygon-stats**: let admin and staff bypass the area limit
+
+### Fix
+
+- **iso3-stats**: fix bug on iso3 stats after the role check
+
 ## 1.2.2 (2024-05-02)
 
 ### Fix
