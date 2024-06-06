@@ -21,8 +21,8 @@
 import concurrent.futures
 import json
 import os
-import random
 import pathlib
+import random
 import re
 import shutil
 import subprocess
@@ -1062,13 +1062,13 @@ class PolygonStats:
             try:
                 query = generate_polygon_stats_graphql_query(self.INPUT_GEOM)
                 payload = {"query": query}
-                response = requests.post(self.API_URL, json=payload, timeout=30)
+                response = requests.post(self.API_URL, json=payload, timeout=20)
                 response.raise_for_status() 
                 return response.json()
             except Exception as e:
                 print(f"Request failed: {e}")
                 retries += 1
-                delay = min(delay * 2, MAX_DELAY)  # Exponential backoff
+                delay = min(delay * 0.5, MAX_DELAY)  # Exponential backoff
                 jitter = random.uniform(0, 1)  #  jitter to avoid simultaneous retries
                 sleep_time = delay * (1 + jitter)
                 print(f"Retrying in {sleep_time} seconds...")
