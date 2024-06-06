@@ -65,6 +65,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
 
+    needs: image-build-and-push
+
     permissions:
       contents: read
       id-token: write
