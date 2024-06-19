@@ -1,7 +1,11 @@
+# Third party imports
+import yaml
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
+from pydantic import ValidationError
 
+# Reader imports
 from src.config import DEFAULT_QUEUE_NAME
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN
@@ -816,3 +820,45 @@ async def process_custom_requests(
         kwargs={"user": user.model_dump()},
     )
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
+
+
+@router.post(
+    "/snapshot/yaml/",
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "multipart/mixed": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "geometry": {"$ref": "#/components/schemas/GeometryModel"},
+                            "yaml_body": {
+                                "type": "string",
+                                "format": "yaml",
+                            },
+                        },
+                        "required": ["geometry", "yaml_body"],
+                    }
+                }
+            },
+            "required": True,
+        },
+    },
+)
+@limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
+@version(1)
+async def process_custom_requests_yaml(
+    request: Request,
+    user: AuthUser = Depends(staff_required),
+):
+    print(DynamicCategoriesModel.model_json_schema())
+    raw_body = await request.body()
+    try:
+        data = yaml.safe_load(raw_body)
+    except yaml.YAMLError:
+        raise HTTPException(status_code=422, detail="Invalid YAML")
+    try:
+        validated_data = DynamicCategoriesModel.model_validate(data)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=e.errors(include_url=False))
+    return validated_data
