@@ -1,3 +1,6 @@
+# Standard library imports
+import json
+
 # Third party imports
 import yaml
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
@@ -9,7 +12,7 @@ from pydantic import ValidationError
 from src.config import DEFAULT_QUEUE_NAME
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN
-from src.validation.models import DynamicCategoriesModel
+from src.validation.models import CategoriesBase, DynamicCategoriesModel
 
 from .api_worker import process_custom_request
 from .auth import AuthUser, UserRole, staff_required
@@ -827,19 +830,7 @@ async def process_custom_requests(
     openapi_extra={
         "requestBody": {
             "content": {
-                "multipart/mixed": {
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "geometry": {"$ref": "#/components/schemas/GeometryModel"},
-                            "yaml_body": {
-                                "type": "string",
-                                "format": "yaml",
-                            },
-                        },
-                        "required": ["geometry", "yaml_body"],
-                    }
-                }
+                "application/x-yaml": {"schema": CategoriesBase.model_json_schema()}
             },
             "required": True,
         },
@@ -849,14 +840,18 @@ async def process_custom_requests(
 @version(1)
 async def process_custom_requests_yaml(
     request: Request,
+    geometry: str,
     user: AuthUser = Depends(staff_required),
 ):
-    print(DynamicCategoriesModel.model_json_schema())
     raw_body = await request.body()
     try:
         data = yaml.safe_load(raw_body)
     except yaml.YAMLError:
         raise HTTPException(status_code=422, detail="Invalid YAML")
+    try:
+        data["geometry"] = json.loads(geometry)
+    except json.decoder.JSONDecodeError as ex:
+        raise HTTPException(status_code=422, detail="Invalid Geometry")
     try:
         validated_data = DynamicCategoriesModel.model_validate(data)
     except ValidationError as e:

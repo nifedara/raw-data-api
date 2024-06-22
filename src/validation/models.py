@@ -18,17 +18,13 @@
 # <info@hotosm.org>
 """Page contains validation models for application"""
 # Standard library imports
-import json
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
 # Third party imports
-from area import area
 from geojson_pydantic import Feature, FeatureCollection, MultiPolygon, Polygon
-from geojson_pydantic.types import BBox
 from pydantic import BaseModel as PydanticModel
 from pydantic import Field, validator
-from typing_extensions import TypedDict
 
 # Reader imports
 from src.config import (
@@ -560,32 +556,19 @@ class DatasetConfig(BaseModel):
         return value.strip()
 
 
-class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
-    """
-    Model for dynamic categories.
-
-    Fields:
-    - iso3 (Optional[str]): ISO3 Country Code.
-    - dataset (Optional[DatasetConfig]): Dataset Configurations for HDX Upload.
-    - meta (bool): Dumps Meta db in parquet format & HDX config JSON to S3.
-    - hdx_upload (bool): Enable/Disable uploading the dataset to HDX.
-    - categories (List[Dict[str, CategoryModel]]): List of dynamic categories.
-    - geometry (Optional[Union[Polygon, MultiPolygon]]): Custom polygon geometry.
-    """
-
-    iso3: Optional[str] = Field(
-        default=None,
-        description="ISO3 Country Code",
-        min_length=3,
-        max_length=3,
-        example="USA",
-    )
+class CategoriesBase(BaseModel):
     hdx_upload: bool = Field(
         default=False,
         description="Enable/Disable uploading dataset to hdx, False by default",
     )
     dataset: Optional[DatasetConfig] = Field(
-        default=None, description="Dataset Configurations for HDX Upload"
+        default=None,
+        description="Dataset Configurations for HDX Upload",
+        example={
+            "dataset_prefix": "hotosm_project_1",
+            "dataset_folder": "TM",
+            "dataset_title": "Tasking Manger Project 1",
+        },
     )
     queue: Optional[str] = Field(
         default="raw_ondemand",
@@ -613,6 +596,29 @@ class DynamicCategoriesModel(BaseModel, GeometryValidatorMixin):
             }
         ],
     )
+
+
+class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
+    """
+    Model for dynamic categories.
+
+    Fields:
+    - iso3 (Optional[str]): ISO3 Country Code.
+    - dataset (Optional[DatasetConfig]): Dataset Configurations for HDX Upload.
+    - meta (bool): Dumps Meta db in parquet format & HDX config JSON to S3.
+    - hdx_upload (bool): Enable/Disable uploading the dataset to HDX.
+    - categories (List[Dict[str, CategoryModel]]): List of dynamic categories.
+    - geometry (Optional[Union[Polygon, MultiPolygon]]): Custom polygon geometry.
+    """
+
+    iso3: Optional[str] = Field(
+        default=None,
+        description="ISO3 Country Code",
+        min_length=3,
+        max_length=3,
+        example="USA",
+    )
+
     geometry: Optional[Union[Polygon, MultiPolygon, Feature, FeatureCollection]] = (
         Field(
             default=None,
