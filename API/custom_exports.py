@@ -1,5 +1,6 @@
 # Standard library imports
 import json
+from typing import Dict
 
 # Third party imports
 import yaml
@@ -825,12 +826,16 @@ async def process_custom_requests(
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
 
 
+class CustomRequestsYaml(CategoriesBase):
+    geometry: Dict
+
+
 @router.post(
     "/snapshot/yaml/",
     openapi_extra={
         "requestBody": {
             "content": {
-                "application/x-yaml": {"schema": CategoriesBase.model_json_schema()}
+                "application/x-yaml": {"schema": CustomRequestsYaml.model_json_schema()}
             },
             "required": True,
         },
@@ -840,7 +845,6 @@ async def process_custom_requests(
 @version(1)
 async def process_custom_requests_yaml(
     request: Request,
-    geometry: str,
     user: AuthUser = Depends(staff_required),
 ):
     raw_body = await request.body()
@@ -848,10 +852,6 @@ async def process_custom_requests_yaml(
         data = yaml.safe_load(raw_body)
     except yaml.YAMLError:
         raise HTTPException(status_code=422, detail="Invalid YAML")
-    try:
-        data["geometry"] = json.loads(geometry)
-    except json.decoder.JSONDecodeError as ex:
-        raise HTTPException(status_code=422, detail="Invalid Geometry")
     try:
         validated_data = DynamicCategoriesModel.model_validate(data)
     except ValidationError as e:
