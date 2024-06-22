@@ -13,7 +13,7 @@ from pydantic import ValidationError
 from src.config import DEFAULT_QUEUE_NAME
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN
-from src.validation.models import CategoriesBase, DynamicCategoriesModel
+from src.validation.models import CustomRequestsYaml, DynamicCategoriesModel
 
 from .api_worker import process_custom_request
 from .auth import AuthUser, UserRole, staff_required
@@ -824,10 +824,6 @@ async def process_custom_requests(
         kwargs={"user": user.model_dump()},
     )
     return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
-
-
-class CustomRequestsYaml(CategoriesBase):
-    geometry: Dict
 
 
 @router.post(

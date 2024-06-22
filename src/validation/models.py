@@ -659,3 +659,7 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
                     if item is None:
                         raise ValueError(f"Missing, Dataset config : {item}")
         return value
+
+
+class CustomRequestsYaml(CategoriesBase):
+    geometry: Dict
