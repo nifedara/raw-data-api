@@ -1320,6 +1320,48 @@ def test_full_hdx_set_iso():
     wait_for_task_completion(track_link)
 
 
+### Custom Snapshot Using YAML
+
+
+def test_custom_yaml_normal_fmtm_request():
+    headers = {"access-token": access_token}
+    payload = """
+    dataset:
+        dataset_folder: FMTM
+        dataset_prefix: hotosm_fmtm_project_1
+        dataset_title: Field Mapping Tasking Manger Project 1
+    categories:
+        - Buildings:
+            formats:
+                - geojson
+                - fgb
+            select:
+                - name
+                - name:en
+            types:
+                - polygons
+            where: tags['building'] IS NOT NULL
+    geometry: {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [83.96919250488281, 28.194446860487773],
+                        [83.99751663208006, 28.194446860487773],
+                        [83.99751663208006, 28.214869548073377],
+                        [83.96919250488281, 28.214869548073377],
+                        [83.96919250488281, 28.194446860487773],
+                    ]
+                ],
+            }"""
+
+    response = client.post("/v1/custom/snapshot/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(track_link)
+
+
 # ## Tasks connection
 
 

@@ -590,7 +590,7 @@ class CategoriesBase(BaseModel):
                     },
                     "types": ["lines", "polygons"],
                     "select": ["name", "highway"],
-                    "where": "highway IS NOT NULL",
+                    "where": "tags['highway'] IS NOT NULL",
                     "formats": ["geojson"],
                 }
             }

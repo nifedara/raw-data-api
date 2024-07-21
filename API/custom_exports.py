@@ -852,4 +852,24 @@ async def process_custom_requests_yaml(
         validated_data = DynamicCategoriesModel.model_validate(data)
     except ValidationError as e:
         raise HTTPException(status_code=422, detail=e.errors(include_url=False))
-    return validated_data
+
+    queue_name = validated_data.queue
+    if validated_data.queue != DEFAULT_QUEUE_NAME and user.role != UserRole.ADMIN.value:
+        raise HTTPException(
+            status_code=403,
+            detail=[{"msg": "Insufficient Permission to choose queue"}],
+        )
+    validated_data.categories = [
+        category for category in validated_data.categories if category
+    ]
+    if len(validated_data.categories) == 0:
+        raise HTTPException(
+            status_code=400, detail=[{"msg": "Categories can't be empty"}]
+        )
+    task = process_custom_request.apply_async(
+        args=(validated_data.model_dump(),),
+        queue=queue_name,
+        track_started=True,
+        kwargs={"user": user.model_dump()},
+    )
+    return JSONResponse({"task_id": task.id, "track_link": f"/tasks/status/{task.id}/"})
