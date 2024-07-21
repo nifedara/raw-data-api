@@ -1352,9 +1352,10 @@ def test_custom_yaml_normal_fmtm_request():
                         [83.96919250488281, 28.194446860487773],
                     ]
                 ],
-            }"""
+            }
+    """
 
-    response = client.post("/v1/custom/snapshot/", json=payload, headers=headers)
+    response = client.post("/v1/custom/snapshot/", json=payload.strip(), headers=headers)
 
     assert response.status_code == 200
     res = response.json()
