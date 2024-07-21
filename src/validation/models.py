@@ -662,4 +662,18 @@ class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
 
 
 class CustomRequestsYaml(CategoriesBase):
-    geometry: Dict
+    geometry: Union[Polygon, MultiPolygon, Feature, FeatureCollection] = Field(
+        default=None,
+        example={
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+    )

@@ -46,7 +46,7 @@ def test_status():
     assert response.status_code == 200
 
 
-## Login
+# Login
 def test_login_url():
     response = client.get("/v1/auth/login/")
     assert response.status_code == 200
@@ -1324,7 +1324,10 @@ def test_full_hdx_set_iso():
 
 
 def test_custom_yaml_normal_fmtm_request():
-    headers = {"access-token": access_token}
+    headers = {
+        "access-token": access_token,
+        "Content-Type": "application/x-yaml",
+    }
     payload = """
     dataset:
         dataset_folder: FMTM
@@ -1341,29 +1344,28 @@ def test_custom_yaml_normal_fmtm_request():
             types:
                 - polygons
             where: tags['building'] IS NOT NULL
-    geometry: {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [83.96919250488281, 28.194446860487773],
-                        [83.99751663208006, 28.194446860487773],
-                        [83.99751663208006, 28.214869548073377],
-                        [83.96919250488281, 28.214869548073377],
-                        [83.96919250488281, 28.194446860487773],
-                    ]
-                ],
-            }
+    geometry:
+        type: Polygon
+        coordinates:
+            [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773]
+                ]
+            ]
     """
 
-    response = client.post("/v1/custom/snapshot/", json=payload.strip(), headers=headers)
-
+    response = client.post("/v1/custom/snapshot/", data=payload, headers=headers)
     assert response.status_code == 200
     res = response.json()
     track_link = res["track_link"]
     wait_for_task_completion(track_link)
 
 
-# ## Tasks connection
+## Tasks connection
 
 
 def test_worker_connection():
