@@ -597,6 +597,7 @@ class CategoriesBase(BaseModel):
         ],
     )
 
+
 class DynamicCategoriesModel(CategoriesBase, GeometryValidatorMixin):
     """
     Model for dynamic categories.
