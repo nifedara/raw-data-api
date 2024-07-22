@@ -140,18 +140,22 @@ def create_column_filter(
             schema = {}
             schema["osm_id"] = "int64"
             schema["type"] = "str"
-
-        for cl in columns:
-            splitted_cl = [cl]
-            if "," in cl:
-                splitted_cl = cl.split(",")
-            for cl in splitted_cl:
-                if cl != "":
-                    filter_col.append(
-                        f"""tags ->> '{cl.strip()}' as {remove_spaces(cl.strip())}"""
-                    )
-                    if create_schema:
-                        schema[remove_spaces(cl.strip())] = "str"
+        if "*" in columns:
+            filter_col.append("tags")
+            if create_schema:
+                schema["tags"] = "str"
+        else:
+            for cl in columns:
+                splitted_cl = [cl]
+                if "," in cl:
+                    splitted_cl = cl.split(",")
+                for cl in splitted_cl:
+                    if cl != "":
+                        filter_col.append(
+                            f"""tags ->> '{cl.strip()}' as {remove_spaces(cl.strip())}"""
+                        )
+                        if create_schema:
+                            schema[remove_spaces(cl.strip())] = "str"
         if output_type == "csv":  # if it is csv geom logic is different
             filter_col.append("ST_X(ST_Centroid(geom)) as longitude")
             filter_col.append("ST_Y(ST_Centroid(geom)) as latitude")
@@ -973,6 +977,8 @@ def extract_features_custom_exports(
         },
     }
     if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
+        if "*" in select:
+            select = ["tags"]
         select = [f"""tags['{item}'][1] as "{item}" """ for item in select]
         select += ["osm_id", "osm_type", "geom"]
         select_query = ", ".join(select)
