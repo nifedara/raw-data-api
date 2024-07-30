@@ -978,8 +978,9 @@ def extract_features_custom_exports(
     }
     if USE_DUCK_DB_FOR_CUSTOM_EXPORTS is True:
         if "*" in select:
-            select = ["tags"]
-        select = [f"""tags['{item}'][1] as "{item}" """ for item in select]
+            select = [f"""tags::json as tags """]
+        else:
+            select = [f"""tags['{item}'][1] as "{item}" """ for item in select]
         select += ["osm_id", "osm_type", "geom"]
         select_query = ", ".join(select)
     else:
