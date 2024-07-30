@@ -480,7 +480,7 @@ EXPORT_TYPE_MAPPING = {
     "gpkg": ExportTypeInfo("gpkg", "GPKG", ["SPATIAL_INDEX=No"], "GDAL"),
     "sqlite": ExportTypeInfo("sqlite", "SQLite", [], "GDAL"),
     "fgb": ExportTypeInfo("fgb", "FlatGeobuf", ["VERIFY_BUFFERS=NO"], "GDAL"),
-    "mvt": ExportTypeInfo("mbtiles", "MVT", ["MINZOOM=0", "MAXZOOM=20"], "GDAL"),
+    "mvt": ExportTypeInfo("mbtiles", "MVT", ["MAXZOOM=20"], "GDAL"),
     "kml": ExportTypeInfo("kml", "KML", [], "GDAL"),
     "gpx": ExportTypeInfo("gpx", "GPX", [], "GDAL"),
     "parquet": ExportTypeInfo("parquet", "PARQUET", [], "PARQUET"),
