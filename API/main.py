@@ -13,11 +13,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# Standard library imports
 # Humanitarian OpenStreetmap Team
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 import time
 
+# Third party imports
 import psycopg2
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,6 +28,7 @@ from fastapi_versioning import VersionedFastAPI
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
+# Reader imports
 from src.config import (
     ENABLE_CUSTOM_EXPORTS,
     ENABLE_HDX_EXPORTS,
@@ -57,6 +60,7 @@ if ENABLE_HDX_EXPORTS:
     from .hdx import router as hdx_router
 
 if SENTRY_DSN:
+    # Third party imports
     import sentry_sdk
 
 # only use sentry if it is specified in config blocks
@@ -71,6 +75,7 @@ if SENTRY_DSN:
 
 if LOG_LEVEL.lower() == "debug":
     # This is used for local setup for auth login
+    # Standard library imports
     import os
 
     os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"

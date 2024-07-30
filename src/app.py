@@ -599,7 +599,27 @@ class RawData:
                         params.min_zoom, params.max_zoom
                     )
                     if params.min_zoom and params.max_zoom
-                    else "-dsco ZOOM_LEVEL_AUTO=YES"
+                    else "MINZOOM=0 MAXZOOM=20"
+                ),
+            }
+            format_options[RawDataOutputType.PMTILES.value] = {
+                "format": "PMTiles",
+                "extra": (
+                    "-dsco MINZOOM={} -dsco MAXZOOM={} ".format(
+                        params.min_zoom, params.max_zoom
+                    )
+                    if params.min_zoom and params.max_zoom
+                    else "-dsco MINZOOM=0 MAXZOOM=20"
+                ),
+            }
+            format_options[RawDataOutputType.MVT.value] = {
+                "format": "MVT",
+                "extra": (
+                    "-dsco MINZOOM={} -dsco MAXZOOM={} ".format(
+                        params.min_zoom, params.max_zoom
+                    )
+                    if params.min_zoom and params.max_zoom
+                    else "-dsco MINZOOM=0 MAXZOOM=20 FORMAT=MBTILES"
                 ),
             }
 
@@ -689,16 +709,6 @@ class RawData:
             country_export,
         )
 
-    @staticmethod
-    def geojson2tiles(geojson_path, tile_path, tile_layer_name):
-        """Responsible for geojson to tiles"""
-        cmd = """tippecanoe -zg --projection=EPSG:4326 -o {tile_output_path} -l {tile_layer_name} --force {geojson_input_path}""".format(
-            tile_output_path=tile_path,
-            tile_layer_name=tile_layer_name,
-            geojson_input_path=geojson_path,
-        )
-        run_ogr2ogr_cmd(cmd)
-
     def extract_current_data(self, exportname):
         """Responsible for Extracting rawdata current snapshot, Initially it creates a geojson file , Generates query , run it with 1000 chunk size and writes it directly to the geojson file and closes the file after dump
         Args:
@@ -731,25 +741,11 @@ class RawData:
         try:
             # currently we have only geojson binding function written other than that we have depend on ogr
             if ENABLE_TILES:
-                if output_type == RawDataOutputType.PMTILES.value:
-                    geojson_path = os.path.join(
-                        working_dir,
-                        f"{self.params.file_name if self.params.file_name else 'Export'}.geojson",
-                    )
-                    RawData.query2geojson(
-                        self.con,
-                        raw_currentdata_extraction_query(
-                            self.params,
-                            g_id=grid_id,
-                            c_id=country,
-                            country_export=country_export,
-                        ),
-                        geojson_path,
-                    )
-                    RawData.geojson2tiles(
-                        geojson_path, dump_temp_file_path, self.params.file_name
-                    )
-                if output_type == RawDataOutputType.MBTILES.value:
+                if output_type in [
+                    RawDataOutputType.PMTILES.value,
+                    RawDataOutputType.MBTILES.value,
+                    RawDataOutputType.MVT.value,
+                ]:
                     RawData.ogr_export(
                         query=raw_currentdata_extraction_query(
                             self.params,
@@ -762,7 +758,7 @@ class RawData:
                         dump_temp_path=dump_temp_file_path,
                         working_dir=working_dir,
                         params=self.params,
-                    )  # uses ogr export to export
+                    )
 
             if output_type == RawDataOutputType.GEOJSON.value:
                 RawData.query2geojson(
