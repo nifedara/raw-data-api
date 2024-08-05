@@ -448,6 +448,15 @@ def get_osm_current_snapshot_as_file(
                         ],
                     )
 
+    if user.id == 0 and params.include_user_metadata:
+        raise HTTPException(
+            status_code=403,
+            detail=[
+                {
+                    "msg": "Insufficient Permission for extracting exports with user metadata , Please login first"
+                }
+            ],
+        )
     queue_name = DEFAULT_QUEUE_NAME  # Everything directs to default now
     task = process_raw_data.apply_async(
         args=(params.model_dump(),),
