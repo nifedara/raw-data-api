@@ -880,21 +880,6 @@ class RawData:
         self.cur.close()
         return FeatureCollection(features=features)
 
-    def extract_plain_geojson(self):
-        """Gets geojson for small area Returns plain geojson without binding"""
-        extraction_query = raw_currentdata_extraction_query(self.params)
-        features = []
-
-        with self.con.cursor(
-            name="fetch_raw_quick"
-        ) as cursor:  # using server side cursor
-            cursor.itersize = 500
-            cursor.execute(extraction_query)
-            for row in cursor:
-                features.append(orjson.loads(row[0]))
-            cursor.close()
-        return FeatureCollection(features=features)
-
 
 class S3FileTransfer:
     """Responsible for the file transfer to s3 from API maachine"""
