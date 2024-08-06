@@ -158,6 +158,10 @@ class RawDataCurrentParamsBase(BaseModel, GeometryValidatorMixin):
         default=True,
         description="Exports features which are exactly inside the passed polygons (ST_WITHIN) By default features which are intersected with passed polygon is exported",
     )
+    include_user_metadata: Optional[bool] = Field(
+        default=False,
+        description="Include user metadata on exports , Only available to logged in users",
+    )
     if ENABLE_POLYGON_STATISTICS_ENDPOINTS:
         include_stats: Optional[bool] = Field(
             default=False,
@@ -216,10 +220,7 @@ class RawDataCurrentParams(RawDataCurrentParamsBase):
         default=False,
         description="Wraps all flatgeobuff output to geometrycollection geometry type",
     )
-    include_user_metadata: Optional[bool] = Field(
-        default=False,
-        description="Include user metadata on exports , Only available to logged in users",
-    )
+
     if ALLOW_BIND_ZIP_FILTER:
         bind_zip: Optional[bool] = True
 

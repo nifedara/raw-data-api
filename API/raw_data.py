@@ -489,6 +489,15 @@ def get_osm_current_snapshot_as_plain_geojson(
     Returns:
         Featurecollection: Geojson
     """
+    if user.id == 0 and params.include_user_metadata:
+        raise HTTPException(
+            status_code=403,
+            detail=[
+                {
+                    "msg": "Insufficient Permission for extracting exports with user metadata , Please login first"
+                }
+            ],
+        )
     area_m2 = area(json.loads(params.geometry.model_dump_json()))
     area_km2 = area_m2 * 1e-6
     if area_km2 > 5:
