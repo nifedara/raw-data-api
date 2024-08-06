@@ -21,12 +21,14 @@
 """
 # Standard library imports
 import json
+from typing import AsyncGenerator
 
 # Third party imports
+import orjson
 import redis
 from area import area
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi_versioning import version
 
 # Reader imports
@@ -39,6 +41,7 @@ from src.config import (
 )
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN as export_rate_limit
+from src.query_builder.builder import raw_currentdata_extraction_query
 from src.validation.models import (
     RawDataCurrentParams,
     RawDataCurrentParamsBase,
@@ -448,6 +451,15 @@ def get_osm_current_snapshot_as_file(
                         ],
                     )
 
+    if user.id == 0 and params.include_user_metadata:
+        raise HTTPException(
+            status_code=403,
+            detail=[
+                {
+                    "msg": "Insufficient Permission for extracting exports with user metadata , Please login first"
+                }
+            ],
+        )
     queue_name = DEFAULT_QUEUE_NAME  # Everything directs to default now
     task = process_raw_data.apply_async(
         args=(params.model_dump(),),
@@ -466,7 +478,7 @@ def get_osm_current_snapshot_as_file(
 
 @router.post("/snapshot/plain/")
 @version(1)
-def get_osm_current_snapshot_as_plain_geojson(
+async def get_osm_current_snapshot_as_plain_geojson(
     request: Request,
     params: RawDataCurrentParamsBase,
     user: AuthUser = Depends(get_optional_user),
@@ -475,25 +487,61 @@ def get_osm_current_snapshot_as_plain_geojson(
 
     Args:
         request (Request): _description_
-        params (RawDataCurrentParamsBase): Same as /snapshot excpet multiple output format options and configurations
+        params (RawDataCurrentParamsBase): Same as /snapshot except multiple output format options and configurations
 
     Returns:
-        Featurecollection: Geojson
+        FeatureCollection: Geojson
     """
+    if user.id == 0 and params.include_user_metadata:
+        raise HTTPException(
+            status_code=403,
+            detail=[
+                {
+                    "msg": "Insufficient Permission for extracting exports with user metadata, Please login first"
+                }
+            ],
+        )
     area_m2 = area(json.loads(params.geometry.model_dump_json()))
+
     area_km2 = area_m2 * 1e-6
-    if area_km2 > 5:
+    if int(area_km2) > 6:
         raise HTTPException(
             status_code=400,
             detail=[
                 {
-                    "msg": f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : 10 Sq.KM"""
+                    "msg": f"""Polygon Area {int(area_km2)} Sq.KM is higher than Threshold : 6 Sq.KM"""
                 }
             ],
         )
+
     params.output_type = "geojson"  # always geojson
-    result = RawData(params).extract_plain_geojson()
-    return result
+
+    async def generate_geojson() -> AsyncGenerator[bytes, None]:
+        # start of featurecollection
+        yield b'{"type": "FeatureCollection", "features": ['
+
+        raw_data = RawData(params)
+        extraction_query = raw_currentdata_extraction_query(params)
+
+        with raw_data.con.cursor(name="fetch_raw_quick") as cursor:
+            cursor.itersize = 500
+            cursor.execute(extraction_query)
+
+            first_feature = True
+            for row in cursor:
+                feature = orjson.loads(row[0])
+                if not first_feature:
+                    # add comma to maintain the struct
+                    yield b","
+                else:
+                    first_feature = False
+                yield orjson.dumps(feature)
+            cursor.close()
+
+        # end of featurecollect
+        yield b"]}"
+
+    return StreamingResponse(generate_geojson(), media_type="application/geo+json")
 
 
 @router.get("/countries/")

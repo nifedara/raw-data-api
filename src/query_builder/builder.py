@@ -502,7 +502,6 @@ def raw_currentdata_extraction_query(
     g_id=None,
     c_id=None,
     ogr_export=False,
-    select_all=False,
     country_export=False,
 ):
     """Default function to support current snapshot extraction with all of the feature that export_tool_api has"""
@@ -536,8 +535,8 @@ def raw_currentdata_extraction_query(
     use_geomtype_in_relation = True
 
     # query_table = []
-    if select_all:
-        select_condition = f"""osm_id, tableoid::regclass AS osm_type, version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # FIXme have condition for displaying userinfo after user authentication
+    if params.include_user_metadata:
+        select_condition = f"""osm_id, tableoid::regclass AS osm_type, version,tags,changeset, uid, user, timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""
     else:
         select_condition = f"""osm_id, tableoid::regclass AS osm_type, version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
