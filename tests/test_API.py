@@ -718,6 +718,84 @@ def test_snapshot_bind_zip():
     wait_for_task_completion(track_link)
 
 
+def test_snapshot_bind_zip():
+    headers = {"access-token": access_token}
+    payload = {
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+        "bindZip": False,
+    }
+
+    response = client.post("/v1/snapshot/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(track_link)
+
+
+## Test snapshot include user metadata
+
+
+def test_snapshot_with_user_meatadata():
+    headers = {"access-token": access_token}
+    payload = {
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+        "includeUserMetadata": True,
+    }
+
+    response = client.post("/v1/snapshot/", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    res = response.json()
+    track_link = res["track_link"]
+    wait_for_task_completion(track_link)
+
+
+def test_snapshot_with_user_meatadata_without_login():
+    # headers = {"access-token": access_token}
+    payload = {
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [83.96919250488281, 28.194446860487773],
+                    [83.99751663208006, 28.194446860487773],
+                    [83.99751663208006, 28.214869548073377],
+                    [83.96919250488281, 28.214869548073377],
+                    [83.96919250488281, 28.194446860487773],
+                ]
+            ],
+        },
+        "includeUserMetadata": True,
+    }
+
+    response = client.post("/v1/snapshot/", json=payload)
+
+    assert response.status_code == 403
+
+
 ## Snapshot Plain
 
 
