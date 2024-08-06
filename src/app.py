@@ -449,9 +449,9 @@ class RawData:
     -Osm element type (Optional)
     """
 
-    def __init__(self, parameters, request_uid="raw-data-api", dbdict=None):
-
-        self.params = parameters
+    def __init__(self, parameters=None, request_uid="raw-data-api", dbdict=None):
+        if parameters:
+            self.params = parameters
         # only use connection pooling if it is configured in config file
         if use_connection_pooling:
             # if database credentials directly from class is not passed grab from pool
