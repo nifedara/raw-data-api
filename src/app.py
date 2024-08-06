@@ -449,16 +449,9 @@ class RawData:
     -Osm element type (Optional)
     """
 
-    def __init__(self, parameters=None, dbdict=None):
-        if parameters:
-            # validation for the parameters if it is already validated with
-            # pydantic model or not , people coming from package they
-            # will not have api valdiation so to make sure they will be validated
-            # before accessing the class
-            # if isinstance(parameters, RawDataCurrentParams) is False:
-            #     self.params = RawDataCurrentParams(**parameters)
-            # else:
-            self.params = parameters
+    def __init__(self, parameters, request_uid="raw-data-api", dbdict=None):
+
+        self.params = parameters
         # only use connection pooling if it is configured in config file
         if use_connection_pooling:
             # if database credentials directly from class is not passed grab from pool
@@ -470,6 +463,8 @@ class RawData:
                 dbdict = get_db_connection_params()
             self.d_b = Database(dict(dbdict))
             self.con, self.cur = self.d_b.connect()
+
+        self.base_export_working_dir = os.path.join(export_path, request_uid)
 
     @staticmethod
     def close_con(con):
@@ -728,7 +723,7 @@ class RawData:
         ) = RawData.get_grid_id(self.params.geometry, self.cur)
         output_type = self.params.output_type
         # Check whether the export path exists or not
-        working_dir = os.path.join(export_path, exportname)
+        working_dir = os.path.join(self.base_export_working_dir, exportname)
         if not os.path.exists(working_dir):
             # Create a exports directory because it does not exist
             os.makedirs(working_dir)
@@ -879,6 +874,16 @@ class RawData:
             features.append(orjson.loads(row[0]))
         self.cur.close()
         return FeatureCollection(features=features)
+
+    def cleanup(self):
+        """
+        Cleans up temporary resources.
+        """
+
+        if os.path.exists(self.base_export_working_dir):
+            shutil.rmtree(self.base_export_working_dir)
+            return True
+        return False
 
 
 class S3FileTransfer:
