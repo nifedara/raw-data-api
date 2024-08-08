@@ -1,3 +1,9 @@
+## 1.4.3 (2024-08-08)
+
+### Fix
+
+- **mvt-format**: fix bug on mvt formats invalid command line args
+
 ## 1.4.2 (2024-08-08)
 
 ### Fix
