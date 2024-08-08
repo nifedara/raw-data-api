@@ -480,7 +480,7 @@ def generate_where_clause_indexes_case(
         # if table_name == "ways_poly" or table_name == "nodes":
         #     where_clause += f" and (country IN ({c_id}))"
         # else:
-        where_clause += f" and (country <@ ARRAY[{c_id}])"
+        where_clause += f" and (country @> ARRAY[{c_id}])"
     if (
         country_export
     ):  # ignore the geometry take geom from the db itself by using precalculated field
@@ -488,7 +488,7 @@ def generate_where_clause_indexes_case(
             # if table_name == "ways_poly" or table_name == "nodes":
             #     where_clause = f"country IN ({c_id})"
             # else:
-            where_clause = f"country <@ ARRAY[{c_id}]"
+            where_clause = f"country @> ARRAY[{c_id}]"
     return where_clause
 
 
@@ -913,7 +913,7 @@ def postgres2duckdb_query(
         create_select_duck_db = """osm_id, osm_type, uid, user, version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geom) as GEOMETRY) AS geom"""
 
     row_filter_condition = (
-        f"""(country <@ ARRAY [{cid}])"""
+        f"""(country @> ARRAY [{cid}])"""
         if cid
         else f"""ST_Intersects(geom,(select ST_SetSRID(ST_Extent(ST_makeValid(ST_GeomFromText('{wkt.dumps(loads(geometry.json()),decimals=6)}',4326))),4326)))"""
     )
@@ -935,7 +935,7 @@ def extract_custom_features_from_postgres(
     """
     Generates Postgresql query for custom feature extraction
     """
-    geom_filter = f"""(country <@ ARRAY [{cid}])""" if cid else create_geom_filter(geom)
+    geom_filter = f"""(country @> ARRAY [{cid}])""" if cid else create_geom_filter(geom)
 
     postgres_query = f"""select {select_q} from (select * , tableoid::regclass as osm_type from {from_q} where {geom_filter}) as sub_query"""
     if where_q:
