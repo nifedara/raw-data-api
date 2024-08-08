@@ -594,7 +594,7 @@ class RawData:
                         params.min_zoom, params.max_zoom
                     )
                     if params.min_zoom and params.max_zoom
-                    else "MINZOOM=0 MAXZOOM=20"
+                    else "-dsco MINZOOM=10 -dsco MAXZOOM=15"
                 ),
             }
             format_options[RawDataOutputType.PMTILES.value] = {
@@ -604,7 +604,7 @@ class RawData:
                         params.min_zoom, params.max_zoom
                     )
                     if params.min_zoom and params.max_zoom
-                    else "-dsco MINZOOM=0 MAXZOOM=20"
+                    else "-dsco MINZOOM=10 -dsco MAXZOOM=15"
                 ),
             }
             format_options[RawDataOutputType.MVT.value] = {
@@ -614,7 +614,7 @@ class RawData:
                         params.min_zoom, params.max_zoom
                     )
                     if params.min_zoom and params.max_zoom
-                    else "-dsco MINZOOM=0 MAXZOOM=20 FORMAT=MBTILES"
+                    else "-dsco MINZOOM=0 -dsco MAXZOOM=20 FORMAT=MBTILES"
                 ),
             }
 
