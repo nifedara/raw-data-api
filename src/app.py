@@ -610,11 +610,11 @@ class RawData:
             format_options[RawDataOutputType.MVT.value] = {
                 "format": "MVT",
                 "extra": (
-                    "-dsco MINZOOM={} -dsco MAXZOOM={} ".format(
+                    "-dsco MINZOOM={} -dsco MAXZOOM={} -dsco FORMAT=MBTILES".format(
                         params.min_zoom, params.max_zoom
                     )
                     if params.min_zoom and params.max_zoom
-                    else "-dsco MINZOOM=0 -dsco MAXZOOM=20 FORMAT=MBTILES"
+                    else "-dsco MINZOOM=10 -dsco MAXZOOM=15 -dsco FORMAT=MBTILES"
                 ),
             }
 
