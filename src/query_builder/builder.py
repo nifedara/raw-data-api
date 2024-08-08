@@ -536,7 +536,7 @@ def raw_currentdata_extraction_query(
 
     # query_table = []
     if params.include_user_metadata:
-        select_condition = f"""osm_id, tableoid::regclass AS osm_type, version,tags,changeset, uid, user, timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""
+        select_condition = f"""osm_id, tableoid::regclass AS osm_type, version,tags,changeset, uid, "user", timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""
     else:
         select_condition = f"""osm_id, tableoid::regclass AS osm_type, version,tags,changeset,timestamp,{'ST_Centroid(geom) as geom' if params.centroid else 'geom'}"""  # this is default attribute that we will deliver to user if user defines his own attribute column then those will be appended with osm_id only
 
@@ -909,8 +909,8 @@ def postgres2duckdb_query(
     create_select_duck_db = """osm_id, osm_type , version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geom) as GEOMETRY) AS geom"""
 
     if enable_users_detail:
-        select_query = """osm_id, osm_type, uid, user, version, changeset, timestamp, tags, ST_AsBinary(geom) as geom"""
-        create_select_duck_db = """osm_id, osm_type, uid, user, version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geom) as GEOMETRY) AS geom"""
+        select_query = """osm_id, osm_type, uid, "user", version, changeset, timestamp, tags, ST_AsBinary(geom) as geom"""
+        create_select_duck_db = """osm_id, osm_type, uid, "user", version, changeset, timestamp, cast(tags::json AS map(varchar, varchar)) AS tags, cast(ST_GeomFromWKB(geom) as GEOMETRY) AS geom"""
 
     row_filter_condition = (
         f"""(country @> ARRAY [{cid}])"""
