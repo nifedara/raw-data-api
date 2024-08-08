@@ -137,6 +137,32 @@ def zip_binding(
     return upload_file_path, inside_file_size
 
 
+class BaseclassTask(celery.Task):
+    """Base class for celery tasks
+
+    Args:
+        celery (_type_): _description_
+    """
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        """Logic when task fails
+
+        Args:
+            exc (_type_): _description_
+            task_id (_type_): _description_
+            args (_type_): _description_
+            kwargs (_type_): _description_
+            einfo (_type_): _description_
+        """
+        # exc (Exception) - The exception raised by the task.
+        # args (Tuple) - Original arguments for the task that failed.
+        # kwargs (Dict) - Original keyword arguments for the task that failed.
+        print("{0!r} failed: {1!r}".format(task_id, exc))
+        clean_dir = os.path.join(EXPORT_PATH, task_id)
+        if os.path.exists(clean_dir):
+            shutil.rmtree(clean_dir)
+
+
 @celery.task(
     bind=True,
     name="process_raw_data",
@@ -165,7 +191,7 @@ def process_raw_data(self, params, user=None):
                 params.use_st_within = True
 
         params.file_name = (
-            format_file_name_str(params.file_name) if params.file_name else "Export"
+            format_file_name_str(params.file_name) if params.file_name else "RawExport"
         )
 
         exportname = f"{params.file_name}_{params.output_type}{f'_uid_{str(self.request.id)}' if params.uuid else ''}"
@@ -180,9 +206,9 @@ def process_raw_data(self, params, user=None):
             file_parts,
         )
 
-        geom_area, geom_dump, working_dir = RawData(params).extract_current_data(
-            file_parts
-        )
+        geom_area, geom_dump, working_dir = RawData(
+            params, str(self.request.id)
+        ).extract_current_data(file_parts)
         inside_file_size = 0
         polygon_stats = None
         if "include_stats" in params.dict():
@@ -271,33 +297,9 @@ def process_raw_data(self, params, user=None):
         return final_response
 
     except Exception as ex:
+        if os.path.exists(os.path.join(EXPORT_PATH, str(self.request.id))):
+            shutil.rmtree(os.path.join(EXPORT_PATH, str(self.request.id)))
         raise ex
-
-
-class BaseclassTask(celery.Task):
-    """Base class for celery tasks
-
-    Args:
-        celery (_type_): _description_
-    """
-
-    def on_failure(self, exc, task_id, args, kwargs, einfo):
-        """Logic when task fails
-
-        Args:
-            exc (_type_): _description_
-            task_id (_type_): _description_
-            args (_type_): _description_
-            kwargs (_type_): _description_
-            einfo (_type_): _description_
-        """
-        # exc (Exception) - The exception raised by the task.
-        # args (Tuple) - Original arguments for the task that failed.
-        # kwargs (Dict) - Original keyword arguments for the task that failed.
-        print("{0!r} failed: {1!r}".format(task_id, exc))
-        clean_dir = os.path.join(EXPORT_PATH, task_id)
-        if os.path.exists(clean_dir):
-            shutil.rmtree(clean_dir)
 
 
 @celery.task(
