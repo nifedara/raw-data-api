@@ -1,3 +1,14 @@
+## 1.4.1 (2024-08-08)
+
+### Fix
+
+- **change-default-db-user-to-user-column**: default user was being used for db query instead read it from table itself
+- **fix-on-dir-size-issue**: failing exports causing dir to explode
+
+### Refactor
+
+- **init-default-values**: reinitialize the default value as other endpoints don't require parameters
+
 ## 1.4.0 (2024-08-08)
 
 ### Feat
