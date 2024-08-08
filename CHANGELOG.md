@@ -1,3 +1,28 @@
+## 1.4.0 (2024-08-08)
+
+### Feat
+
+- **streaming-response-for-api**: adds streaming response for current snapshot plain
+- **userinfo-on-exports**: adds userinfo in exports only for logged in users
+- **vector-tiles**: support for vector tiles , allow user to select all tags in select
+- **dockerfile**: minimizes docker image size  and introduces new version of gdal which should enable the latest vector driver support
+- **custom_exports-yaml**: adds a yaml endpoint for custom exports
+
+### Fix
+
+- **fixes-failing-test-cases**: moves user checking to base class
+- **wild-card-select**: fixes bug on wild card select for the query builder
+
+### Refactor
+
+- **cleanup-previous-non-async-code**: removes non async code for the quick fetch
+- **yaml-models**: refactor model to models.py
+- **custom-exports-yaml**: added geometry and both yaml validation
+
+### Perf
+
+- **custom-exports-yaml**: moves geometry to request body within yaml itself instead of query param
+
 ## 1.3.0 (2024-06-06)
 
 ### Feat
