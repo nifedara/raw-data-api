@@ -1,3 +1,9 @@
+## 1.4.2 (2024-08-08)
+
+### Fix
+
+- **fix-zoom-level-bug-on-pmtiles**: adds proper syntax on vector tiles exports zoom level
+
 ## 1.4.1 (2024-08-08)
 
 ### Fix
