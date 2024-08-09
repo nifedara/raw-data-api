@@ -1,3 +1,13 @@
+## 1.4.6 (2024-08-09)
+
+### Fix
+
+- **unit-test-failing**: only add file format if tiles are enabled
+
+### Perf
+
+- **test-cases**: don't run if task is failed
+
 ## 1.4.5 (2024-08-09)
 
 ### Fix
