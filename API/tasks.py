@@ -71,8 +71,8 @@ def get_task_status(
     if task_result.status == "SUCCESS":
         task_response_result = task_result.result
     if task_result.state != "SUCCESS":
-        # task_response_result = "N/A"  # TODO : Make sure no imp information is popping out outside of the API
-        task_response_result = str(task_result.info)
+        task_response_result = "N/A"  # TODO : Make sure no imp information is popping out outside of the API
+        # task_response_result = str(task_result.info)
 
     result = {
         "id": task_id,
