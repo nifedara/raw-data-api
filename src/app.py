@@ -738,7 +738,7 @@ class RawData:
 
         dump_temp_file_path = os.path.join(
             working_dir,
-            f"{self.params.file_name if self.params.file_name else 'Export'}{'' if output_type == RawDataOutputType.MVT.value else f'.{output_type.lower()}'}",
+            f"{self.params.file_name if self.params.file_name else 'Export'}{f'.{output_type.lower()}'}",
         )
 
         try:
@@ -749,6 +749,10 @@ class RawData:
                     RawDataOutputType.MBTILES.value,
                     RawDataOutputType.MVT.value,
                 ]:
+                    dump_temp_file_path = os.path.join(
+                        working_dir,
+                        f"{self.params.file_name if self.params.file_name else 'Export'}{'' if output_type == RawDataOutputType.MVT.value else f'.{output_type.lower()}'}",
+                    )
                     RawData.ogr_export(
                         query=raw_currentdata_extraction_query(
                             self.params,
