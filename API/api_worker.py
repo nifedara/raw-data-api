@@ -108,11 +108,12 @@ def zip_binding(
             "Using memory optimized zip",
         )
 
-        paths = [
-            {"fs": str(file_path), "n": file_path.name}
-            for file_path in pathlib.Path(working_dir).iterdir()
-            if file_path.is_file()
-        ]
+        paths = []
+        for root, dirs, files in os.walk(working_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                rel_path = os.path.relpath(file_path, working_dir)
+                paths.append({"fs": str(file_path), "n": rel_path})
 
         zfly = zipfly.ZipFly(paths=paths)
         generator = zfly.generator()
@@ -129,9 +130,11 @@ def zip_binding(
             compresslevel=9,
             allowZip64=True,
         ) as zf:
-            for file_path in pathlib.Path(working_dir).iterdir():
-                if file_path.is_file():
-                    zf.write(file_path, arcname=file_path.name)
+            for root, dirs, files in os.walk(working_dir):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    rel_path = os.path.relpath(file_path, working_dir)
+                    zf.write(file_path, arcname=rel_path)
 
     logging.debug("Zip Binding Done!")
     return upload_file_path, inside_file_size

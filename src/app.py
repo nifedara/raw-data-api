@@ -610,11 +610,11 @@ class RawData:
             format_options[RawDataOutputType.MVT.value] = {
                 "format": "MVT",
                 "extra": (
-                    "-dsco MINZOOM={} -dsco MAXZOOM={} -dsco FORMAT=MBTILES".format(
+                    "-dsco MINZOOM={} -dsco MAXZOOM={}".format(
                         params.min_zoom, params.max_zoom
                     )
                     if params.min_zoom and params.max_zoom
-                    else "-dsco MINZOOM=10 -dsco MAXZOOM=15 -dsco FORMAT=MBTILES"
+                    else "-dsco MINZOOM=10 -dsco MAXZOOM=15"
                 ),
             }
 
@@ -627,7 +627,14 @@ class RawData:
 
         format_option = format_options.get(outputtype, {"format": "", "extra": ""})
 
-        cmd = f"ogr2ogr -overwrite -f {format_option['format']} {dump_temp_path} PG:\"host={db_items.get('host')} port={db_items.get('port')} user={db_items.get('user')} dbname={db_items.get('dbname')} password={db_items.get('password')}\" -sql @{query_path} -lco ENCODING=UTF-8 -progress {format_option['extra']} {file_name_option}"
+        if format_option["format"] in [
+            "Parquet"
+        ]:  # those layers which doesn't support overwrite if layer is not present
+            begin = "ogr2ogr -f"
+        else:
+            begin = "ogr2ogr -overwrite -f"
+
+        cmd = f"{begin} {format_option['format']} {dump_temp_path} PG:\"host={db_items.get('host')} port={db_items.get('port')} user={db_items.get('user')} dbname={db_items.get('dbname')} password={db_items.get('password')}\" -sql @{query_path} -lco ENCODING=UTF-8 -progress {format_option['extra']} {file_name_option}"
         run_ogr2ogr_cmd(cmd)
 
         os.remove(query_path)
@@ -731,8 +738,9 @@ class RawData:
 
         dump_temp_file_path = os.path.join(
             working_dir,
-            f"{self.params.file_name if self.params.file_name else 'Export'}.{output_type.lower()}",
+            f"{self.params.file_name if self.params.file_name else 'Export'}{'' if output_type == RawDataOutputType.MVT.value else f'.{output_type.lower()}'}",
         )
+
         try:
             # currently we have only geojson binding function written other than that we have depend on ogr
             if ENABLE_TILES:

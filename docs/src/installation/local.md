@@ -109,3 +109,12 @@ Flower dashboard should be available on port `5000` on your localhost.
 ```
 http://127.0.0.1:5000/
 ```
+
+
+
+### DEBUG
+
+If you are running in to worker crash on mac , You can use  the OBJC_DISABLE_INITIALIZE_FORK_SAFETY environment variable to disable the Objective-C runtime's fork safety checks. However use this with caution and may result to other errrors 
+```
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+```
