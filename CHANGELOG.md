@@ -1,3 +1,9 @@
+## 1.4.4 (2024-08-09)
+
+### Fix
+
+- **security-patch-task-result**: don't raise the error to user when task status is being returned
+
 ## 1.4.3 (2024-08-08)
 
 ### Fix
