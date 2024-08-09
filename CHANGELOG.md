@@ -1,3 +1,9 @@
+## 1.4.5 (2024-08-09)
+
+### Fix
+
+- **mvt-tiles**: fixes zoom level and zipping method for mvt tiles
+
 ## 1.4.4 (2024-08-09)
 
 ### Fix
