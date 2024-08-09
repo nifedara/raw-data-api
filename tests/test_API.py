@@ -34,6 +34,8 @@ def wait_for_task_completion(track_link, max_attempts=12, interval_seconds=5):
 
         if check_status == "SUCCESS":
             return res  # Task completed successfully
+        if check_status == "FAILURE":
+            raise AssertionError("Task failed")
 
         if attempt == max_attempts:
             raise AssertionError(
