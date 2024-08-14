@@ -5,7 +5,7 @@ from datetime import datetime
 # Third party imports
 import redis
 from celery.result import AsyncResult
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Path
 from fastapi.responses import JSONResponse
 from fastapi_versioning import version
 
@@ -14,7 +14,7 @@ from src.config import CELERY_BROKER_URL, DEFAULT_QUEUE_NAME, ONDEMAND_QUEUE_NAM
 from src.validation.models import SnapshotTaskResponse
 
 from .api_worker import celery
-from .auth import AuthUser, admin_required, login_required, staff_required
+from .auth import AuthUser, admin_required, staff_required
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -22,7 +22,7 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 @router.get("/status/{task_id}/", response_model=SnapshotTaskResponse)
 @version(1)
 def get_task_status(
-    task_id,
+    task_id=Path(description="Unique id provided on response from */snapshot/*"),
     only_args: bool = Query(
         default=False,
         description="Fetches arguments of task",
@@ -84,8 +84,11 @@ def get_task_status(
 
 @router.get("/revoke/{task_id}/")
 @version(1)
-def revoke_task(task_id, user: AuthUser = Depends(staff_required)):
-    """Revokes task , Terminates if it is executing
+def revoke_task(
+    task_id=Path(description="Unique id provided on response from */snapshot*"),
+    user: AuthUser = Depends(staff_required),
+):
+    """Revokes task, Terminates if it is executing
 
     Args:
         task_id (_type_): task id of raw data task
@@ -154,6 +157,7 @@ def ping_workers():
 def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     """
     Discards all waiting tasks from the queue
+
     Returns : Number of tasks discarded
     """
     purged = celery.control.purge()
@@ -166,6 +170,11 @@ queues = [DEFAULT_QUEUE_NAME, ONDEMAND_QUEUE_NAME]
 @router.get("/queue/")
 @version(1)
 def get_queue_info():
+    """
+    Get all the queues
+
+    Returns : The queues names and their lengths
+    """
     queue_info = {}
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
@@ -183,12 +192,21 @@ def get_queue_info():
 @router.get("/queue/details/{queue_name}/")
 @version(1)
 def get_list_details(
-    queue_name: str,
+    queue_name=Path(description="Name of queue to retrieve"),
     args: bool = Query(
         default=False,
         description="Includes arguments of task",
     ),
 ):
+    """
+    Retrieves queue information based on the given queue name
+
+    Args:
+    - queue_name (str): The name of the queue to retrieve.
+
+    Returns : The queue details
+    """
+
     if queue_name not in queues:
         raise HTTPException(status_code=404, detail=f"Queue '{queue_name}' not found")
     redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)

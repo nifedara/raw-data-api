@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Path
 from fastapi_versioning import version
 
 from src.app import HDX
@@ -25,8 +25,8 @@ async def create_hdx(
     Create a new HDX entry.
 
     Args:
-        request (Request): The request object.
-        hdx_data (dict): Data for creating the HDX entry.
+        request (Request): The request object.\n
+        hdx_data (dict): Data for creating the HDX entry.\n
         user_data (AuthUser): User authentication data.
 
     Returns:
@@ -41,8 +41,8 @@ async def create_hdx(
 @version(1)
 async def read_hdx_list(
     request: Request,
-    skip: int = 0,
-    limit: int = 10,
+    skip: int = Query(0, description="Number of entries to skip."),
+    limit: int = Query(10, description="Maximum number of entries to retrieve."),
 ):
     """
     Retrieve a list of HDX entries based on provided filters.
@@ -65,7 +65,7 @@ async def read_hdx_list(
             filters[f"dataset->>'{key}' = %s"] = values
     try:
         hdx_list = hdx_instance.get_hdx_list_with_filters(skip, limit, filters)
-    except Exception as ex:
+    except Exception:
         raise HTTPException(status_code=422, detail="Couldn't process query")
     return hdx_list
 
@@ -101,7 +101,9 @@ async def search_hdx(
 @router.get("/{hdx_id}", response_model=dict)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
-async def read_hdx(request: Request, hdx_id: int):
+async def read_hdx(
+    request: Request, hdx_id: int = Path(description="ID of the HDX entry to retrieve")
+):
     """
     Retrieve a specific HDX entry by its ID.
 
@@ -127,17 +129,17 @@ async def read_hdx(request: Request, hdx_id: int):
 @version(1)
 async def update_hdx(
     request: Request,
-    hdx_id: int,
     hdx_data: dict,
+    hdx_id: int = Path(description="ID of the HDX entry to update"),
     user_data: AuthUser = Depends(staff_required),
 ):
     """
     Update an existing HDX entry.
 
     Args:
-        request (Request): The request object.
-        hdx_id (int): ID of the HDX entry to update.
-        hdx_data (dict): Data for updating the HDX entry.
+        request (Request): The request object.\n
+        hdx_id (int): ID of the HDX entry to update.\n
+        hdx_data (dict): Data for updating the HDX entry.\n
         user_data (AuthUser): User authentication data.
 
     Returns:
@@ -159,17 +161,17 @@ async def update_hdx(
 @version(1)
 async def patch_hdx(
     request: Request,
-    hdx_id: int,
     hdx_data: Dict,
+    hdx_id: int = Path(description="ID of the HDX entry to update"),
     user_data: AuthUser = Depends(staff_required),
 ):
     """
     Partially update an existing HDX entry.
 
     Args:
-        request (Request): The request object.
-        hdx_id (int): ID of the HDX entry to update.
-        hdx_data (Dict): Data for partially updating the HDX entry.
+        request (Request): The request object.\n
+        hdx_id (int): ID of the HDX entry to update.\n
+        hdx_data (Dict): Data for partially updating the HDX entry.\n
         user_data (AuthUser): User authentication data.
 
     Returns:
@@ -190,14 +192,16 @@ async def patch_hdx(
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def delete_hdx(
-    request: Request, hdx_id: int, user_data: AuthUser = Depends(admin_required)
+    request: Request,
+    hdx_id: int = Path(description="ID of the HDX entry to delete"),
+    user_data: AuthUser = Depends(admin_required),
 ):
     """
     Delete an existing HDX entry.
 
     Args:
-        request (Request): The request object.
-        hdx_id (int): ID of the HDX entry to delete.
+        request (Request): The request object.\n
+        hdx_id (int): ID of the HDX entry to delete.\n
         user_data (AuthUser): User authentication data.
 
     Returns:

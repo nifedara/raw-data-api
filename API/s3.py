@@ -1,11 +1,10 @@
 import json
 from urllib.parse import quote
 
-import boto3
 import humanize
 from boto3.session import Session
 from botocore.exceptions import NoCredentialsError
-from fastapi import APIRouter, Header, HTTPException, Path, Query, Request
+from fastapi import APIRouter, HTTPException, Path, Query, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import (
     JSONResponse,
@@ -37,7 +36,7 @@ paginator = s3.get_paginator("list_objects_v2")
 @version(1)
 async def list_s3_files(
     request: Request,
-    folder: str = Query(default="/HDX"),
+    folder: str = Query("/HDX", description="Folder in S3"),
     prettify: bool = Query(
         default=False, description="Display size & date in human-readable format"
     ),
@@ -89,7 +88,7 @@ async def check_object_existence(bucket_name, file_path):
         s3.head_object(Bucket=bucket_name, Key=file_path)
     except NoCredentialsError:
         raise HTTPException(status_code=500, detail="AWS credentials not available")
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=404, detail=f"File or folder not found: {file_path}"
         )

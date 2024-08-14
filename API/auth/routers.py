@@ -1,6 +1,4 @@
-import json
-
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Path, Query
 from pydantic import BaseModel
 
 from src.app import Users
@@ -12,7 +10,8 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.get("/login/")
 def login_url(request: Request):
-    """Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
+    """
+    Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
     Click on the download url returned to get access_token.
 
     Parameters: None
@@ -42,14 +41,14 @@ def callback(request: Request):
     return access_token
 
 
-@router.get("/me/", response_model=AuthUser)
+@router.get("/me/", response_model=AuthUser, response_description="User's Information")
 def my_data(user_data: AuthUser = Depends(login_required)):
     """Read the access token and provide  user details from OSM user's API endpoint,
     also integrated with underpass .
 
     Parameters:None
 
-    Returns: user_data
+    Returns: user_data\n
             User Role :
                 ADMIN = 1
                 STAFF = 2
@@ -88,7 +87,10 @@ async def create_user(params: User, user_data: AuthUser = Depends(admin_required
 
 # Read user by osm_id
 @router.get("/users/{osm_id}", response_model=dict)
-async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
+async def read_user(
+    osm_id: int = Path(description="The OSM ID of the User to Retrieve"),
+    user_data: AuthUser = Depends(staff_required),
+):
     """
     Retrieves user information based on the given osm_id.
     User Role :
@@ -113,7 +115,9 @@ async def read_user(osm_id: int, user_data: AuthUser = Depends(staff_required)):
 # Update user by osm_id
 @router.put("/users/{osm_id}", response_model=dict)
 async def update_user(
-    osm_id: int, update_data: User, user_data: AuthUser = Depends(admin_required)
+    update_data: User,
+    user_data: AuthUser = Depends(admin_required),
+    osm_id: int = Path(description="The OSM ID of the User to Update"),
 ):
     """
     Updates user information based on the given osm_id.
@@ -137,7 +141,10 @@ async def update_user(
 
 # Delete user by osm_id
 @router.delete("/users/{osm_id}", response_model=dict)
-async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)):
+async def delete_user(
+    user_data: AuthUser = Depends(admin_required),
+    osm_id: int = Path(description="The OSM ID of the User to Delete"),
+):
     """
     Deletes a user based on the given osm_id.
 
@@ -157,7 +164,9 @@ async def delete_user(osm_id: int, user_data: AuthUser = Depends(admin_required)
 # Get all users
 @router.get("/users/", response_model=list)
 async def read_users(
-    skip: int = 0, limit: int = 10, user_data: AuthUser = Depends(staff_required)
+    skip: int = Query(0, description="The Number of Users to Skip"),
+    limit: int = Query(10, description="The Maximum Number of Users to Retrieve"),
+    user_data: AuthUser = Depends(staff_required),
 ):
     """
     Retrieves a list of users with optional pagination.

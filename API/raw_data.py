@@ -17,8 +17,8 @@
 # 1100 13th Street NW Suite 800 Washington, D.C. 20005
 # <info@hotosm.org>
 
-"""[Router Responsible for Raw data API ]
-"""
+"""[Router Responsible for Raw data API ]"""
+
 # Standard library imports
 import json
 from typing import AsyncGenerator
@@ -27,7 +27,7 @@ from typing import AsyncGenerator
 import orjson
 import redis
 from area import area
-from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, Path, Query
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi_versioning import version
 
@@ -60,7 +60,7 @@ redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 @router.get("/status/", response_model=StatusResponse)
 @version(1)
 def check_database_last_updated():
-    """Gives status about how recent the osm data is , it will give the last time that database was updated completely"""
+    """Gives status about how recent the osm data is. It will give the last time that database was updated completely"""
     result = RawData().check_status()
     return {"last_updated": result}
 
@@ -456,7 +456,7 @@ def get_osm_current_snapshot_as_file(
             status_code=403,
             detail=[
                 {
-                    "msg": "Insufficient Permission for extracting exports with user metadata , Please login first"
+                    "msg": "Insufficient Permission for extracting exports with user metadata, Please login first"
                 }
             ],
         )
@@ -546,7 +546,17 @@ async def get_osm_current_snapshot_as_plain_geojson(
 
 @router.get("/countries/")
 @version(1)
-def get_countries(q: str = ""):
+def get_countries(
+    q: str = Query("", description="Query parameter for filtering countries"),
+):
+    """
+    Gets Countries list from the database
+    Args:
+        q (str): query parameter for filtering countries
+    Returns:
+        featurecollection: geojson of country
+    """
+
     result = RawData().get_countries_list(q)
     return result
 
@@ -560,5 +570,13 @@ def get_specific_country(cid: int):
 
 @router.get("/osm_id/")
 @version(1)
-def get_osm_feature(osm_id: int):
+def get_osm_feature(osm_id: int = Path(description="The OSM ID of feature")):
+    """
+    Gets geometry of osm_id in geojson
+    Args:
+        osm_id (int): osm_id of feature
+    Returns:
+        featurecollection: Geojson
+    """
+
     return RawData().get_osm_feature(osm_id)
