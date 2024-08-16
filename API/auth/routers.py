@@ -8,7 +8,7 @@ from . import AuthUser, admin_required, login_required, osm_auth, staff_required
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.get("/login/")
+@router.get("/login")
 def login_url(request: Request):
     """
     Generate Login URL for authentication using OAuth2 Application registered with OpenStreetMap.
@@ -24,7 +24,7 @@ def login_url(request: Request):
     return login_url
 
 
-@router.get("/callback/")
+@router.get("/callback")
 def callback(request: Request):
     """Performs token exchange between OpenStreetMap and Raw Data API
 
@@ -41,7 +41,7 @@ def callback(request: Request):
     return access_token
 
 
-@router.get("/me/", response_model=AuthUser, response_description="User's Information")
+@router.get("/me", response_model=AuthUser, response_description="User's Information")
 def my_data(user_data: AuthUser = Depends(login_required)):
     """Read the access token and provide  user details from OSM user's API endpoint,
     also integrated with underpass .
@@ -63,7 +63,7 @@ class User(BaseModel):
 
 
 # Create user
-@router.post("/users/", response_model=dict)
+@router.post("/users", response_model=dict)
 async def create_user(params: User, user_data: AuthUser = Depends(admin_required)):
     """
     Creates a new user and returns the user's information.
@@ -162,7 +162,7 @@ async def delete_user(
 
 
 # Get all users
-@router.get("/users/", response_model=list)
+@router.get("/users", response_model=list)
 async def read_users(
     skip: int = Query(0, description="The Number of Users to Skip"),
     limit: int = Query(10, description="The Maximum Number of Users to Retrieve"),

@@ -19,7 +19,7 @@ from .auth import AuthUser, admin_required, staff_required
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
-@router.get("/status/{task_id}/", response_model=SnapshotTaskResponse)
+@router.get("/status/{task_id}", response_model=SnapshotTaskResponse)
 @version(1)
 def get_task_status(
     task_id=Path(description="Unique id provided on response from */snapshot/*"),
@@ -82,7 +82,7 @@ def get_task_status(
     return JSONResponse(result)
 
 
-@router.get("/revoke/{task_id}/")
+@router.get("/revoke/{task_id}")
 @version(1)
 def revoke_task(
     task_id=Path(description="Unique id provided on response from */snapshot*"),
@@ -100,7 +100,7 @@ def revoke_task(
     return JSONResponse({"id": task_id})
 
 
-@router.get("/inspect/")
+@router.get("/inspect")
 @version(1)
 def inspect_workers(
     request: Request,
@@ -141,7 +141,7 @@ def inspect_workers(
     return JSONResponse(content=response_data)
 
 
-@router.get("/ping/")
+@router.get("/ping")
 @version(1)
 def ping_workers():
     """Pings available workers
@@ -152,7 +152,7 @@ def ping_workers():
     return JSONResponse(inspected_ping)
 
 
-@router.get("/purge/")
+@router.get("/purge")
 @version(1)
 def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     """
@@ -167,7 +167,7 @@ def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
 queues = [DEFAULT_QUEUE_NAME, ONDEMAND_QUEUE_NAME]
 
 
-@router.get("/queue/")
+@router.get("/queue")
 @version(1)
 def get_queue_info():
     """
@@ -189,7 +189,7 @@ def get_queue_info():
     return JSONResponse(content=queue_info)
 
 
-@router.get("/queue/details/{queue_name}/")
+@router.get("/queue/details/{queue_name}")
 @version(1)
 def get_list_details(
     queue_name=Path(description="Name of queue to retrieve"),
