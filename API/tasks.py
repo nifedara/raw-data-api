@@ -159,6 +159,9 @@ def discard_all_waiting_tasks(user: AuthUser = Depends(admin_required)):
     Discards all waiting tasks from the queue
 
     Returns : Number of tasks discarded
+
+    Raises:
+    - HTTPException 403: If purge fails due to insufficient permission.
     """
     purged = celery.control.purge()
     return JSONResponse({"tasks_discarded": purged})

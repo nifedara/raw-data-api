@@ -79,7 +79,9 @@ async def list_s3_files(
         return StreamingResponse(content=generate(), media_type="application/json")
 
     except NoCredentialsError:
-        raise HTTPException(status_code=500, detail="AWS credentials not available")
+        raise HTTPException(
+            status_code=500, detail=[{"msg": "AWS credentials not available"}]
+        )
 
 
 async def check_object_existence(bucket_name, file_path):
@@ -87,10 +89,12 @@ async def check_object_existence(bucket_name, file_path):
     try:
         s3.head_object(Bucket=bucket_name, Key=file_path)
     except NoCredentialsError:
-        raise HTTPException(status_code=500, detail="AWS credentials not available")
+        raise HTTPException(
+            status_code=500, detail=[{"msg": "AWS credentials not available"}]
+        )
     except Exception:
         raise HTTPException(
-            status_code=404, detail=f"File or folder not found: {file_path}"
+            status_code=404, detail=[{"msg": f"File or folder not found: {file_path}"}]
         )
 
 
@@ -102,7 +106,7 @@ async def read_meta_json(bucket_name, file_path):
         return content
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error reading meta.json: {str(e)}"
+            status_code=500, detail=[{"msg": f"Error reading meta.json: {str(e)}"}]
         )
 
 
@@ -130,7 +134,9 @@ async def head_s3_file(
         if e.response["Error"]["Code"] == "404":
             return Response(status_code=404)
         else:
-            raise HTTPException(status_code=500, detail=f"AWS Error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=[{"msg": f"AWS Error: {str(e)}"}]
+            )
 
 
 @router.get("/get/{file_path:path}")

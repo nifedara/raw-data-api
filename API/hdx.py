@@ -66,7 +66,7 @@ async def read_hdx_list(
     try:
         hdx_list = hdx_instance.get_hdx_list_with_filters(skip, limit, filters)
     except Exception:
-        raise HTTPException(status_code=422, detail="Couldn't process query")
+        raise HTTPException(status_code=422, detail=[{"msg": "Couldn't process query"}])
     return hdx_list
 
 
@@ -115,13 +115,13 @@ async def read_hdx(
         dict: Details of the requested HDX entry.
 
     Raises:
-        HTTPException: If the HDX entry is not found.
+        HTTPException 404: If the HDX entry is not found.
     """
     hdx_instance = HDX()
     hdx = hdx_instance.get_hdx_by_id(hdx_id)
     if hdx:
         return hdx
-    raise HTTPException(status_code=404, detail="HDX not found")
+    raise HTTPException(status_code=404, detail=[{"msg": "HDX not found"}])
 
 
 @router.put("/{hdx_id}", response_model=dict)
@@ -146,12 +146,12 @@ async def update_hdx(
         dict: Result of the HDX update process.
 
     Raises:
-        HTTPException: If the HDX entry is not found.
+        HTTPException 404: If the HDX entry is not found.
     """
     hdx_instance = HDX()
     existing_hdx = hdx_instance.get_hdx_by_id(hdx_id)
     if not existing_hdx:
-        raise HTTPException(status_code=404, detail="HDX not found")
+        raise HTTPException(status_code=404, detail=[{"msg": "HDX not found"}])
     hdx_instance_update = HDX()
     return hdx_instance_update.update_hdx(hdx_id, hdx_data)
 
@@ -178,12 +178,12 @@ async def patch_hdx(
         Dict: Result of the HDX update process.
 
     Raises:
-        HTTPException: If the HDX entry is not found.
+        HTTPException 404: If the HDX entry is not found.
     """
     hdx_instance = HDX()
     existing_hdx = hdx_instance.get_hdx_by_id(hdx_id)
     if not existing_hdx:
-        raise HTTPException(status_code=404, detail="HDX not found")
+        raise HTTPException(status_code=404, detail=[{"msg": "HDX not found"}])
     patch_instance = HDX()
     return patch_instance.patch_hdx(hdx_id, hdx_data)
 
@@ -208,11 +208,11 @@ async def delete_hdx(
         dict: Result of the HDX deletion process.
 
     Raises:
-        HTTPException: If the HDX entry is not found.
+        HTTPException 404: If the HDX entry is not found.
     """
     hdx_instance = HDX()
     existing_hdx = hdx_instance.get_hdx_by_id(hdx_id)
     if not existing_hdx:
-        raise HTTPException(status_code=404, detail="HDX not found")
+        raise HTTPException(status_code=404, detail=[{"msg": "HDX not found"}])
 
     return hdx_instance.delete_hdx(hdx_id)

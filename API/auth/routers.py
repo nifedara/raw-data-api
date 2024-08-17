@@ -53,6 +53,10 @@ def my_data(user_data: AuthUser = Depends(login_required)):
                 ADMIN = 1
                 STAFF = 2
                 GUEST = 3
+
+    Raises:
+    - HTTPException 403: Due to authentication error(Wrong access token).
+    - HTTPException 500: Internal server error
     """
     return user_data
 
@@ -79,7 +83,8 @@ async def create_user(params: User, user_data: AuthUser = Depends(admin_required
     - Dict[str, Any]: A dictionary containing the osm_id of the newly created user.
 
     Raises:
-    - HTTPException: If the user creation fails.
+    - HTTPException 403: If the user creation fails due to insufficient permission.
+    - HTTPException 500: If the user creation fails due to internal server error.
     """
     auth = Users()
     return auth.create_user(params.osm_id, params.role)
@@ -105,7 +110,9 @@ async def read_user(
     - Dict[str, Any]: A dictionary containing user information.
 
     Raises:
-    - HTTPException: If the user with the given osm_id is not found.
+    - HTTPException 403: If the user has insufficient permission.
+    - HTTPException 404: If the user with the given osm_id is not found.
+    - HTTPException 500: If it fails due to internal server error.
     """
     auth = Users()
 
@@ -133,7 +140,9 @@ async def update_user(
     - Dict[str, Any]: A dictionary containing the updated user information.
 
     Raises:
-    - HTTPException: If the user with the given osm_id is not found.
+    - HTTPException 403: If the user has insufficient permission.
+    - HTTPException 404: If the user with the given osm_id is not found.
+    - HTTPException 500: If it fails due to internal server error.
     """
     auth = Users()
     return auth.update_user(osm_id, update_data)
@@ -155,7 +164,9 @@ async def delete_user(
     - Dict[str, Any]: A dictionary containing the deleted user information.
 
     Raises:
-    - HTTPException: If the user with the given osm_id is not found.
+    - HTTPException 403: If the user has insufficient permission.
+    - HTTPException 404: If the user with the given osm_id is not found.
+    - HTTPException 500: If it fails due to internal server error.
     """
     auth = Users()
     return auth.delete_user(osm_id)
@@ -177,6 +188,9 @@ async def read_users(
 
     Returns:
     - List[Dict[str, Any]]: A list of dictionaries containing user information.
+
+    - HTTPException 403: If it fails due to insufficient permission.
+    - HTTPException 500: If it fails due to internal server error.
     """
     auth = Users()
     return auth.read_users(skip, limit)
