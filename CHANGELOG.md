@@ -1,3 +1,9 @@
+## 1.5.0 (2024-08-19)
+
+### Feat
+
+- **download-metrics**: enabels user to fetch and download metrics for rawdataapi
+
 ## 1.4.6 (2024-08-09)
 
 ### Fix
