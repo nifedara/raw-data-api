@@ -8,7 +8,7 @@ from fastapi_versioning import version
 # Reader imports
 from src.app import DownloadMetrics
 
-from .auth import admin_required
+from .auth import staff_required
 
 router = APIRouter(prefix="/metrics", tags=["Metrics"])
 
@@ -33,7 +33,7 @@ def get_stats(
         description="Group by: day, month, or quarter",
         regex=r"^(day|month|quarter|year)$",
     ),
-    _: bool = Depends(admin_required),
+    _: bool = Depends(staff_required),
 ):
     """
     Retrieve download metrics summary statistics.
