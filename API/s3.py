@@ -17,6 +17,7 @@ from fastapi_versioning import version
 from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
 from src.config import LIMITER as limiter
 from src.config import RATE_LIMIT_PER_MIN
+from src.validation.models import ErrorMessage
 
 router = APIRouter(prefix="/s3", tags=["S3"])
 
@@ -31,7 +32,9 @@ s3 = session.client(
 paginator = s3.get_paginator("list_objects_v2")
 
 
-@router.get("/files")
+@router.get(
+    "/files", responses={"404": {"model": ErrorMessage}, "500": {"model": ErrorMessage}}
+)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def list_s3_files(
@@ -110,7 +113,10 @@ async def read_meta_json(bucket_name, file_path):
         )
 
 
-@router.head("/get/{file_path:path}")
+@router.head(
+    "/get/{file_path:path}",
+    responses={"404": {"model": ErrorMessage}, "500": {"model": ErrorMessage}},
+)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def head_s3_file(
@@ -139,7 +145,10 @@ async def head_s3_file(
             )
 
 
-@router.get("/get/{file_path:path}")
+@router.get(
+    "/get/{file_path:path}",
+    responses={"404": {"model": ErrorMessage}, "500": {"model": ErrorMessage}},
+)
 @limiter.limit(f"{RATE_LIMIT_PER_MIN}/minute")
 @version(1)
 async def get_s3_file(

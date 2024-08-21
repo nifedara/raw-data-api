@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Union
 
 from fastapi.security import APIKeyHeader
-from fastapi import Depends, Header, HTTPException
+from fastapi import Depends, HTTPException
 from osm_login_python.core import Auth
 from pydantic import BaseModel, Field
 
@@ -10,7 +10,7 @@ from src.app import Users
 from src.config import get_oauth_credentials
 
 API_Access_Token = APIKeyHeader(
-    name="Access_Token", description="Access Token to Authorize User"
+    name="Access_Token", description="Access Token to Authorize User", auto_error=False
 )
 
 
@@ -25,6 +25,16 @@ class AuthUser(BaseModel):
     username: str
     img_url: Union[str, None]
     role: UserRole = Field(default=UserRole.GUEST.value)
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": "123",
+                "username": "HOT Team",
+                "img_url": "https://hotosm/image.jpg",
+                "role": UserRole.GUEST.value,
+            }
+        }
 
 
 osm_auth = Auth(*get_oauth_credentials())
@@ -52,11 +62,7 @@ def login_required(access_token: str = Depends(API_Access_Token)):
     return get_osm_auth_user(access_token)
 
 
-def get_optional_user(
-    access_token: str = Header(
-        default=None, description="Access Token to Authorize User"
-    ),
-) -> AuthUser:
+def get_optional_user(access_token: str | None = Depends(API_Access_Token)) -> AuthUser:
     if access_token:
         return get_osm_auth_user(access_token)
     else:

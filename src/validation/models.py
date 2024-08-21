@@ -689,3 +689,56 @@ class ErrorDetail(BaseModel):
 
 class ErrorMessage(BaseModel):
     detail: List[ErrorDetail]
+
+
+common_responses = {
+    401: {
+        "model": ErrorMessage,
+        "content": {
+            "application/json": {
+                "example": {"detail": [{"msg": "User is not an admin"}]}
+            }
+        },
+    },
+    403: {
+        "model": ErrorMessage,
+        "content": {
+            "application/json": {
+                "example": {"detail": [{"msg": "OSM Authentication failed"}]}
+            }
+        },
+    },
+    500: {"model": ErrorMessage},
+}
+
+stats_response = {
+    "200": {
+        "content": {
+            "application/json": {
+                "example": {
+                    "summary": {"buildings": "", "roads": ""},
+                    "raw": {
+                        "population": 0,
+                        "populatedAreaKm2": 0,
+                        "averageEditTime": 0,
+                        "lastEditTime": 0,
+                        "osmUsersCount": 0,
+                        "osmBuildingCompletenessPercentage": 0,
+                        "osmRoadsCompletenessPercentage": 0,
+                        "osmBuildingsCount": 0,
+                        "osmHighwayLengthKm": 0,
+                        "aiBuildingsCountEstimation": 0,
+                        "aiRoadCountEstimationKm": 0,
+                        "buildingCount6Months": 0,
+                        "highwayLength6MonthsKm": 0,
+                    },
+                    "meta": {
+                        "indicators": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/indicators.md",
+                        "metrics": "https://github.com/hotosm/raw-data-api/tree/develop/docs/src/stats/metrics.md",
+                    },
+                }
+            }
+        }
+    },
+    "500": {"model": ErrorMessage},
+}

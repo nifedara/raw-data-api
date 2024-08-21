@@ -47,6 +47,8 @@ from src.validation.models import (
     RawDataCurrentParamsBase,
     SnapshotResponse,
     StatusResponse,
+    ErrorMessage,
+    common_responses,
 )
 
 from .api_worker import process_raw_data
@@ -57,7 +59,9 @@ router = APIRouter(prefix="", tags=["Extract"])
 redis_client = redis.StrictRedis.from_url(CELERY_BROKER_URL)
 
 
-@router.get("/status", response_model=StatusResponse)
+@router.get(
+    "/status", response_model=StatusResponse, responses={"500": {"model": ErrorMessage}}
+)
 @version(1)
 def check_database_last_updated():
     """Gives status about how recent the osm data is. It will give the last time that database was updated completely"""
@@ -65,7 +69,15 @@ def check_database_last_updated():
     return {"last_updated": result}
 
 
-@router.post("/snapshot", response_model=SnapshotResponse)
+@router.post(
+    "/snapshot",
+    response_model=SnapshotResponse,
+    responses={
+        **common_responses,
+        404: {"model": ErrorMessage},
+        429: {"model": ErrorMessage},
+    },
+)
 @limiter.limit(f"{export_rate_limit}/minute")
 @version(1)
 def get_osm_current_snapshot_as_file(
@@ -407,7 +419,10 @@ def get_osm_current_snapshot_as_file(
             "task_id": "your task_id",
             "track_link": "/tasks/task_id/"
         }
-    2. Now navigate to /tasks/ with your task id to track progress and result
+    2. Now navigate to /tasks/ with your task id to track progress and result\n
+
+
+    Authentication is optional. If no token provided, it returns a user with limited options / guest user
 
     """
     if not (user.role is UserRole.STAFF.value or user.role is UserRole.ADMIN.value):
@@ -476,7 +491,9 @@ def get_osm_current_snapshot_as_file(
     )
 
 
-@router.post("/snapshot/plain")
+@router.post(
+    "/snapshot/plain", responses={**common_responses, 404: {"model": ErrorMessage}}
+)
 @version(1)
 async def get_osm_current_snapshot_as_plain_geojson(
     request: Request,
@@ -490,7 +507,9 @@ async def get_osm_current_snapshot_as_plain_geojson(
         params (RawDataCurrentParamsBase): Same as /snapshot except multiple output format options and configurations
 
     Returns:
-        FeatureCollection: Geojson
+        FeatureCollection: Geojson\n
+
+    Authentication is optional. If no token provided, it returns a user with limited options / guest user
     """
     if user.id == 0 and params.include_user_metadata:
         raise HTTPException(
@@ -544,7 +563,7 @@ async def get_osm_current_snapshot_as_plain_geojson(
     return StreamingResponse(generate_geojson(), media_type="application/geo+json")
 
 
-@router.get("/countries")
+@router.get("/countries", responses={"500": {"model": ErrorMessage}})
 @version(1)
 def get_countries(
     q: str = Query("", description="Query parameter for filtering countries"),
@@ -568,7 +587,10 @@ def get_specific_country(cid: int):
     return result
 
 
-@router.get("/osm_id")
+@router.get(
+    "/osm_id",
+    responses={"404": {"model": ErrorMessage}, "500": {"model": ErrorMessage}},
+)
 @version(1)
 def get_osm_feature(osm_id: int = Path(description="The OSM ID of feature")):
     """

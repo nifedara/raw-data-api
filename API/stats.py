@@ -11,12 +11,15 @@ from .auth import AuthUser, UserRole, get_optional_user
 from src.app import PolygonStats
 from src.config import LIMITER as limiter
 from src.config import POLYGON_STATISTICS_API_RATE_LIMIT
-from src.validation.models import StatsRequestParams
+from src.validation.models import StatsRequestParams, stats_response
 
 router = APIRouter(prefix="/stats", tags=["Stats"])
 
 
-@router.post("/polygon")
+@router.post(
+    "/polygon",
+    responses={**stats_response},
+)
 @limiter.limit(f"{POLYGON_STATISTICS_API_RATE_LIMIT}/minute")
 @version(1)
 async def get_polygon_stats(
