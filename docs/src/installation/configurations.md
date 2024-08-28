@@ -81,6 +81,7 @@ The following are the different configuration options that are accepted.
 | `SENTRY_DSN` | `SENTRY_DSN` | `[SENTRY]` | _none_ | Sentry Data Source Name | OPTIONAL |
 | `SENTRY_RATE` | `SENTRY_RATE` | `[SENTRY]` | `1.0` | Sample rate percentage for shipping errors to sentry; Allowed values between 0 (0%) to 1 (100%)| OPTIONAL |
 | `ENABLE_HDX_EXPORTS` | `ENABLE_HDX_EXPORTS` | `[HDX]` | False | Enables hdx related endpoints and imports | OPTIONAL |
+| `ENABLE_METRICS_APIS` | `ENABLE_METRICS_APIS` | `[API_CONFIG]` | False | Enables download metrics related endpoints , Require different setup of metrics populator | OPTIONAL |
 | `HDX_SITE` | `HDX_SITE` | `[HDX]` | 'demo' | HDX site to point , By default demo site , use prod for production | CONDITIONAL |
 | `HDX_API_KEY` | `HDX_API_KEY` | `[HDX]` | None | Your API Secret key for hdx upload , should have write access and it is compulsory if ENABLE_HDX_EXPORTS is True | CONDITIONAL |
 | `HDX_OWNER_ORG` | `HDX_OWNER_ORG` | `[HDX]` | None | Your HDX organization ID| CONDITIONAL |
@@ -138,6 +139,7 @@ API Tokens have expiry date, It is `important to update API Tokens manually each
 | `DUCK_DB_MEMORY_LIMIT` | `[API_CONFIG]` | Yes | Yes |
 | `DUCK_DB_THREAD_LIMIT` | `[API_CONFIG]` | Yes | Yes |
 | `ENABLE_CUSTOM_EXPORTS` | `[API_CONFIG]` | Yes | Yes |
+| `ENABLE_METRICS_APIS` | `[API_CONFIG]` | Yes | No |
 | `CELERY_BROKER_URL` | `[CELERY]` | Yes | Yes |
 | `CELERY_RESULT_BACKEND` | `[CELERY]` | Yes | Yes |
 | `WORKER_PREFETCH_MULTIPLIER` | `[CELERY]` | Yes | Yes |

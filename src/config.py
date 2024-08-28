@@ -281,6 +281,12 @@ PARALLEL_PROCESSING_CATEGORIES = get_bool_env_var(
 )
 
 
+ENABLE_METRICS_APIS = get_bool_env_var(
+    "ENABLE_METRICS_APIS",
+    config.getboolean("API_CONFIG", "ENABLE_METRICS_APIS", fallback=False),
+)
+
+
 if ENABLE_HDX_EXPORTS:
     try:
         hdx_credentials = os.environ["REMOTE_HDX"]

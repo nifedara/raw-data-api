@@ -2201,3 +2201,43 @@ class HDX:
         if result:
             return dict(result[0])
         raise HTTPException(status_code=404, detail="HDX item not found")
+
+
+class DownloadMetrics:
+    def __init__(self) -> None:
+        """
+        Initializes an instance of the DownloadMetrics class, connecting to the database.
+        """
+        dbdict = get_db_connection_params()
+        self.d_b = Database(dbdict)
+        self.con, self.cur = self.d_b.connect()
+
+    def get_summary_stats(self, start_date, end_date, group_by):
+        """
+        Get summary metrics for raw-data-api downlaods
+        """
+
+        select_query = f"""
+            SELECT
+                date_trunc('{group_by}', date) as kwdate,
+                SUM((summary->>'downloads_count')::numeric) as total_downloads_count,
+                SUM((summary->>'uploads_count')::numeric) as total_uploads_count,
+                SUM((summary->>'unique_users')::numeric) as total_unique_users,
+                SUM((summary->>'unique_downloads')::numeric) as total_unique_downloads,
+                SUM((summary->>'interactions_count')::numeric) as total_interactions_count,
+                SUM((summary->>'upload_size')::numeric) as total_upload_size,
+                SUM((summary->>'download_size')::numeric) as total_download_size
+            FROM
+                metrics
+            WHERE
+                date BETWEEN '{start_date}' AND '{end_date}'
+            GROUP BY
+                kwdate
+            ORDER BY
+                kwdate
+        """
+
+        self.cur.execute(select_query)
+        result = self.cur.fetchall()
+        self.d_b.close_conn()
+        return [dict(item) for item in result]

@@ -1,3 +1,15 @@
+## 1.5.1 (2024-08-20)
+
+### Fix
+
+- **staff-access-for-download-metrics**: fixes bug for metrics not being available to staff
+
+## 1.5.0 (2024-08-19)
+
+### Feat
+
+- **download-metrics**: enabels user to fetch and download metrics for rawdataapi
+
 ## 1.4.6 (2024-08-09)
 
 ### Fix
